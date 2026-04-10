@@ -1,7 +1,5 @@
 # Donna — Regulatory Horizon Intelligence Platform
 
-> Always three steps ahead.
-
 Donna continuously monitors regulatory sources, enriches documents with AI-generated summaries, and delivers personalized alerts and digests to in-house legal and compliance teams.
 
 ## Prerequisites
