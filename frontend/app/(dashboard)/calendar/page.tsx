@@ -247,10 +247,12 @@ export default function CalendarPage() {
         </div>
       ) : events.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Calendar className="w-10 h-10 text-[#262626] mb-4" />
-          <p className="text-[#737373] font-sans text-sm mb-1">No calendar events yet</p>
-          <p className="text-[#404040] font-sans text-xs">
-            Key dates from your regulatory feed will appear here automatically.
+          <Calendar className="w-8 h-8 text-[#262626] mb-4" />
+          <p className="font-display text-xl text-[#F0EEE9] mb-2">
+            No upcoming regulatory dates.
+          </p>
+          <p className="text-sm text-[#737373] font-sans max-w-sm mx-auto">
+            Donna will automatically populate this calendar as new documents are processed.
           </p>
         </div>
       ) : (

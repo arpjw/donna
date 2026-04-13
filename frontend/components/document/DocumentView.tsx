@@ -122,7 +122,7 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
     <div className="min-h-screen bg-doc-bg text-doc-text transition-colors">
       {/* Right-margin buffer when panel is open */}
       <div className={panelOpen ? "pr-[280px]" : ""}>
-        <div className="max-w-[720px] mx-auto px-14 py-12">
+        <div className="max-w-[720px] mx-auto px-4 py-6 sm:px-14 sm:py-12">
           {/* Back link */}
           <Link
             href="/feed"

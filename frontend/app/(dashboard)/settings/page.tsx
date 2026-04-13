@@ -121,7 +121,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-[720px] mx-auto px-8 py-8">
+    <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-8">
       <div className="border-b border-border pb-5 mb-8">
         <h1 className="font-display text-3xl font-semibold text-text-primary">
           Settings
@@ -231,7 +231,7 @@ export default function SettingsPage() {
           </h2>
           <div className="space-y-4">
             <Field label="Alert threshold">
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 {ALERT_THRESHOLDS.map(({ value, label }) => (
                   <button
                     key={value}

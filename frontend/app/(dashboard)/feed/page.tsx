@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 import { ChangeCard } from "@/components/feed/ChangeCard";
 import { FeedHeader } from "@/components/feed/FeedHeader";
 import { CardSkeleton } from "@/components/ui/skeleton";
@@ -121,18 +120,11 @@ function EmptyState() {
   return (
     <div className="border border-border rounded p-12 text-center mt-4">
       <p className="font-display text-xl text-text-primary mb-2">
-        Your feed is empty
+        Your regulatory feed is empty.
       </p>
-      <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto mb-4">
-        Complete your profile setup to see regulatory changes relevant to your
-        industry and jurisdictions.
+      <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
+        Donna is monitoring sources and will surface relevant changes as they are published.
       </p>
-      <Link
-        href="/onboarding"
-        className="inline-flex items-center px-4 py-2 bg-crimson text-white text-sm font-sans rounded hover:bg-crimson/90 transition-colors"
-      >
-        Complete setup →
-      </Link>
     </div>
   );
 }

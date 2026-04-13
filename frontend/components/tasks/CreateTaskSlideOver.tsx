@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { X, Check } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tasksApi } from "@/lib/api";
 import type { FeedItem, ProcessedDocument, TaskPriority } from "@/lib/types";
+import { useToast } from "@/components/ui/toast";
+import { useTaskStats } from "@/lib/task-stats-context";
 
 interface CreateTaskSlideOverProps {
   open: boolean;
@@ -16,20 +18,6 @@ interface CreateTaskSlideOverProps {
   doc?: ProcessedDocument;
 }
 
-function Toast({ message, onDismiss }: { message: string; onDismiss: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onDismiss, 3000);
-    return () => clearTimeout(t);
-  }, [onDismiss]);
-
-  return (
-    <div className="fixed bottom-6 right-6 z-[200] flex items-center gap-2 bg-card border border-impact-low/30 text-impact-low px-4 py-3 rounded text-sm font-sans shadow-lg">
-      <Check className="w-4 h-4 shrink-0" />
-      {message}
-    </div>
-  );
-}
-
 export function CreateTaskSlideOver({
   open,
   onClose,
@@ -38,6 +26,8 @@ export function CreateTaskSlideOver({
   doc,
 }: CreateTaskSlideOverProps) {
   const { getToken } = useAuth();
+  const { toast } = useToast();
+  const { triggerRefresh } = useTaskStats();
 
   // Derive pre-populated values from the source
   const change = feedItem?.change;
@@ -61,7 +51,6 @@ export function CreateTaskSlideOver({
   const [dueDate, setDueDate] = useState(commentDeadline);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -103,7 +92,8 @@ export function CreateTaskSlideOver({
         },
         token ?? undefined
       );
-      setToast(true);
+      toast("Task created");
+      triggerRefresh();
       onCreated?.();
       onClose();
     } catch (e) {
@@ -132,7 +122,7 @@ export function CreateTaskSlideOver({
       {/* Slide-over panel */}
       <aside
         className={cn(
-          "fixed top-0 right-0 h-full z-[100] w-[320px] bg-[#161616] border-l border-[#262626] flex flex-col transition-transform duration-200 ease-in-out",
+          "fixed top-0 right-0 h-full z-[100] w-full sm:w-[320px] bg-[#161616] border-l border-[#262626] flex flex-col transition-transform duration-200 ease-in-out",
           open ? "translate-x-0" : "translate-x-full"
         )}
       >
@@ -245,9 +235,6 @@ export function CreateTaskSlideOver({
         </div>
       </aside>
 
-      {toast && (
-        <Toast message="Task created" onDismiss={() => setToast(false)} />
-      )}
     </>
   );
 }

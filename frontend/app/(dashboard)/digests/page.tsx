@@ -45,6 +45,7 @@ export default function DigestsPage() {
         <div className="space-y-4">
           <CardSkeleton />
           <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : error ? (
         <p className="text-text-secondary text-sm font-sans">{error}</p>
@@ -52,10 +53,10 @@ export default function DigestsPage() {
         <div className="border border-border rounded p-12 text-center">
           <BookOpen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
           <p className="font-display text-xl text-text-primary mb-2">
-            No digests yet
+            No digests yet.
           </p>
           <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
-            Your first weekly digest will be assembled and sent on Monday at 8am.
+            Your first digest will be sent on your scheduled day.
           </p>
         </div>
       ) : (

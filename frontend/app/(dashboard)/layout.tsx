@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { CommandSearch } from "@/components/search/CommandSearch";
+import { TaskStatsProvider } from "@/lib/task-stats-context";
 
 export default function DashboardLayout({
   children,
@@ -23,12 +24,14 @@ export default function DashboardLayout({
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
-        {children}
-      </main>
-      <CommandSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-    </div>
+    <TaskStatsProvider>
+      <div className="flex h-screen overflow-hidden bg-surface">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+          {children}
+        </main>
+        <CommandSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      </div>
+    </TaskStatsProvider>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { usersApi } from "@/lib/api";
@@ -25,6 +25,23 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { getToken } = useAuth();
   const [step, setStep] = useState<Step>("welcome");
+
+  // Redirect if already onboarded
+  useEffect(() => {
+    const checkOnboarded = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const profile = await usersApi.me(token);
+        if (profile.onboarded_at) {
+          router.push("/");
+        }
+      } catch {
+        // 404 = no profile yet, stay on onboarding
+      }
+    };
+    checkOnboarded();
+  }, [getToken, router]);
   const [companyName, setCompanyName] = useState("");
   const [industries, setIndustries] = useState<string[]>([]);
   const [jurisdictions, setJurisdictions] = useState<string[]>(["federal"]);
@@ -58,7 +75,7 @@ export default function OnboardingPage() {
         token ?? undefined
       );
       setStep("done");
-      setTimeout(() => router.push("/feed"), 2000);
+      setTimeout(() => router.push("/"), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save preferences");
     } finally {
@@ -80,25 +97,31 @@ export default function OnboardingPage() {
         </div>
 
         {/* Progress */}
-        {step !== "done" && (
-          <div className="flex gap-1 mb-8">
-            {(["welcome", "industries", "jurisdictions", "alerts"] as Step[]).map(
-              (s, i) => {
-                const steps = ["welcome", "industries", "jurisdictions", "alerts"];
-                const current = steps.indexOf(step);
-                const idx = steps.indexOf(s);
-                return (
-                  <div
-                    key={s}
-                    className={`h-0.5 flex-1 rounded transition-colors ${
-                      idx <= current ? "bg-crimson" : "bg-border"
-                    }`}
-                  />
-                );
-              }
-            )}
-          </div>
-        )}
+        {step !== "done" && (() => {
+          const STEPS = ["welcome", "industries", "jurisdictions", "alerts"] as Step[];
+          const stepNumber = STEPS.indexOf(step) + 1;
+          return (
+            <>
+              <p className="text-[11px] font-mono text-[#737373] text-center mb-3">
+                Step {stepNumber} of 4
+              </p>
+              <div className="flex gap-1 mb-8">
+                {STEPS.map((s) => {
+                  const current = STEPS.indexOf(step);
+                  const idx = STEPS.indexOf(s);
+                  return (
+                    <div
+                      key={s}
+                      className={`h-0.5 flex-1 rounded transition-colors ${
+                        idx <= current ? "bg-crimson" : "bg-border"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
 
         {/* Steps */}
         {step === "welcome" && (

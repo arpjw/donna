@@ -66,9 +66,9 @@ export default function AlertsPage() {
       ) : alerts.length === 0 ? (
         <div className="border border-border rounded p-12 text-center">
           <Bell className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="font-display text-xl text-text-primary mb-2">No alerts yet</p>
+          <p className="font-display text-xl text-text-primary mb-2">No alerts yet.</p>
           <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
-            You'll receive alerts here when high-impact regulatory changes match your profile.
+            Donna will notify you here when high-impact changes are published.
           </p>
         </div>
       ) : (

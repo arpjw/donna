@@ -41,7 +41,7 @@ async def _send_digests(cadence: str) -> None:
     from app.models.alert import Alert
     from app.models.digest import Digest
     from app.services.llm import assemble_digest
-    from app.services.email import send_email
+    from app.services.email import send_email, wrap_digest_html
 
     now = datetime.now(timezone.utc)
 
@@ -123,11 +123,17 @@ async def _send_digests(cadence: str) -> None:
             period_label = "weekly" if cadence == "weekly" else "daily"
             headline = f"Your {period_label} regulatory briefing — {now.strftime('%B %d, %Y')}"
 
+            # Wrap assembled content in the HTML email template
+            wrapped_html = wrap_digest_html(
+                content_html=assembled["html"],
+                period_label=period_label.title() + " Briefing",
+            )
+
             # Send
             success = await send_email(
                 to=user.email,
                 subject=f"[Donna] {headline}",
-                html=assembled["html"],
+                html=wrapped_html,
                 text=assembled["text"],
             )
 
@@ -137,7 +143,7 @@ async def _send_digests(cadence: str) -> None:
                 period_start=period_start,
                 period_end=period_end,
                 headline=headline,
-                assembled_html=assembled["html"],
+                assembled_html=wrapped_html,
                 assembled_text=assembled["text"],
                 change_ids=[rm.regulatory_change_id for rm in mappings],
                 sent_at=now if success else None,

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tasksApi } from "@/lib/api";
+import { useTaskStats } from "@/lib/task-stats-context";
 
 const NAV_ITEMS = [
   { href: "/feed", label: "Feed", icon: LayoutList },
@@ -143,6 +144,7 @@ function SidebarContent({
 
 export function Sidebar() {
   const { getToken } = useAuth();
+  const { refreshKey } = useTaskStats();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [taskCount, setTaskCount] = useState(0);
@@ -164,7 +166,7 @@ export function Sidebar() {
       }
     };
     fetchStats();
-  }, [getToken]);
+  }, [getToken, refreshKey]);
 
   const toggle = () => {
     const next = !collapsed;

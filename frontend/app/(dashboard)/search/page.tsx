@@ -62,10 +62,10 @@ export default function SearchPage() {
       ) : results !== null && results.length === 0 ? (
         <div className="border border-border rounded p-8 text-center">
           <p className="font-display text-xl text-text-primary mb-2">
-            No results for "{lastQuery}"
+            No results for &ldquo;{lastQuery}&rdquo;
           </p>
           <p className="text-sm text-text-secondary font-sans">
-            Try different search terms or browse the feed.
+            Try broader terms or different keywords.
           </p>
         </div>
       ) : results !== null ? (
@@ -81,6 +81,14 @@ export default function SearchPage() {
         </div>
       ) : (
         <div>
+          <div className="text-center py-6 mb-8">
+            <p className="font-display text-xl text-text-primary mb-2">
+              Search regulations
+            </p>
+            <p className="text-sm text-text-secondary font-sans max-w-md mx-auto">
+              Search across 689+ regulatory documents. Try searching for a topic, agency, or regulation type.
+            </p>
+          </div>
           <p className="text-xs text-text-tertiary font-mono uppercase tracking-wider mb-4">
             Example searches
           </p>
