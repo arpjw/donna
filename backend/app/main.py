@@ -15,7 +15,8 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
 from app.rate_limit import limiter, rate_limit_exceeded_handler
-from app.routers import documents, changes, search, users, alerts, digests, webhooks, sources, tasks, annotations, calendar, audit
+from app.routers import documents, changes, search, users, alerts, digests, webhooks, sources, tasks, annotations, calendar, audit, billing
+from app.middleware.subscription import SubscriptionMiddleware
 
 app = FastAPI(
     title="Donna API",
@@ -43,6 +44,8 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
+app.add_middleware(SubscriptionMiddleware)
+
 # Routers
 app.include_router(documents.router)
 app.include_router(changes.router)
@@ -56,6 +59,7 @@ app.include_router(tasks.router)
 app.include_router(annotations.router)
 app.include_router(calendar.router)
 app.include_router(audit.router)
+app.include_router(billing.router)
 
 
 @app.get("/health")

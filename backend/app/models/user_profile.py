@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, DateTime, Text, func
+from sqlalchemy import Column, DateTime, Text, func, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
 
@@ -23,6 +23,8 @@ class UserProfile(Base):
     digest_day = Column(Text, default="monday")
     digest_time = Column(Text, default="08:00")
     timezone = Column(Text, default="America/New_York")
+    subscription_status = Column(Text, default="trialing")
+    trial_ends_at = Column(DateTime(timezone=True), nullable=True)
     onboarded_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
