@@ -4,9 +4,9 @@ import { useRef } from "react";
 import type { DocumentAnnotation } from "@/lib/types";
 
 export const ANNOTATION_COLORS: Record<string, string> = {
-  crimson: "rgba(192, 57, 43, 0.20)",
-  amber: "rgba(212, 137, 58, 0.20)",
-  green: "rgba(90, 158, 111, 0.20)",
+  crimson: "rgba(196, 133, 90, 0.25)",
+  amber: "rgba(212, 137, 58, 0.25)",
+  green: "rgba(123, 158, 135, 0.25)",
 };
 
 interface SelectionInfo {
@@ -22,6 +22,7 @@ interface AnnotatableSectionProps {
   globalOffset: number;
   annotations: DocumentAnnotation[];
   className?: string;
+  style?: React.CSSProperties;
   onSelectionReady: (info: SelectionInfo) => void;
 }
 
@@ -78,6 +79,7 @@ export function AnnotatableSection({
   globalOffset,
   annotations,
   className,
+  style,
   onSelectionReady,
 }: AnnotatableSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,7 +110,7 @@ export function AnnotatableSection({
   const segments = buildSegments(text, annotations, globalOffset);
 
   return (
-    <div ref={containerRef} onMouseUp={handleMouseUp} className={className}>
+    <div ref={containerRef} onMouseUp={handleMouseUp} className={className} style={style}>
       {segments.map((seg, i) =>
         seg.annotation ? (
           <mark

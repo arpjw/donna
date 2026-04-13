@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { MoreHorizontal, Check, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import type { ComplianceTask, TaskStatus } from "@/lib/types";
 
 interface TaskCardProps {
@@ -14,16 +13,16 @@ interface TaskCardProps {
 }
 
 const PRIORITY_BORDER: Record<string, string> = {
-  high: "border-l-crimson",
-  medium: "border-l-impact-medium",
-  low: "border-l-impact-low",
+  high: "#B85C5C",
+  medium: "#D4893A",
+  low: "#7B9E87",
 };
 
-const STATUS_BADGE: Record<string, string> = {
-  open: "bg-white/5 text-text-secondary border-border",
-  in_progress: "bg-impact-medium/10 text-impact-medium border-impact-medium/20",
-  complete: "bg-impact-low/10 text-impact-low border-impact-low/20",
-  dismissed: "bg-white/5 text-text-tertiary border-border",
+const STATUS_BADGE: Record<string, React.CSSProperties> = {
+  open: { background: "#EEE9E0", border: "1px solid #D5D0C8", color: "#6B655C" },
+  in_progress: { background: "#FDF4EA", border: "1px solid #E8D4BC", color: "#8B5E2F" },
+  complete: { background: "#EFF4ED", border: "1px solid #C4D8BC", color: "#3A6B3A" },
+  dismissed: { background: "#EEE9E0", border: "1px solid #D5D0C8", color: "#9E9890" },
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -34,15 +33,15 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function dueDateColor(dateStr: string | null): string {
-  if (!dateStr) return "text-text-tertiary";
+  if (!dateStr) return "#9E9890";
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const due = new Date(dateStr);
   const diffMs = due.getTime() - today.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return "text-impact-high";
-  if (diffDays <= 3) return "text-impact-medium";
-  return "text-text-tertiary";
+  if (diffDays < 0) return "#B85C5C";
+  if (diffDays <= 3) return "#D4893A";
+  return "#9E9890";
 }
 
 function formatDueDate(dateStr: string | null): string {
@@ -62,22 +61,30 @@ export function TaskCard({ task, onStatusChange, onEdit }: TaskCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const source = task.change?.source;
   const docId = task.change?.processed_document_id;
+  const borderColor = PRIORITY_BORDER[task.priority] ?? "#E2DDD5";
 
   return (
     <div
-      className={cn(
-        "border border-border border-l-4 rounded p-5 relative group",
-        PRIORITY_BORDER[task.priority] ?? "border-l-border"
-      )}
+      className="relative group"
+      style={{
+        background: "#F5F2EC",
+        border: "1px solid #E2DDD5",
+        borderLeft: `4px solid ${borderColor}`,
+        borderRadius: 5,
+        padding: 20,
+      }}
     >
-      {/* Top row: status badge + due date + menu */}
+      {/* Top row */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Badge className={STATUS_BADGE[task.status]}>
+          <span
+            className="font-mono uppercase tracking-widest rounded-full"
+            style={{ fontSize: 9, padding: "2px 8px", letterSpacing: "0.08em", ...STATUS_BADGE[task.status] }}
+          >
             {STATUS_LABELS[task.status]}
-          </Badge>
+          </span>
           {task.due_date && task.status !== "complete" && (
-            <span className={cn("text-[11px] font-mono", dueDateColor(task.due_date))}>
+            <span className="font-mono" style={{ fontSize: 11, color: dueDateColor(task.due_date) }}>
               {formatDueDate(task.due_date)}
             </span>
           )}
@@ -87,31 +94,44 @@ export function TaskCard({ task, onStatusChange, onEdit }: TaskCardProps) {
         <div className="relative">
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="p-1.5 rounded text-text-tertiary hover:text-text-secondary hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100"
+            className="p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100"
+            style={{ color: "#9E9890" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#6B655C")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
           >
             <MoreHorizontal className="w-4 h-4" />
           </button>
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-7 z-20 bg-card border border-border rounded shadow-lg py-1 min-w-[140px]">
+              <div
+                className="absolute right-0 top-7 z-20 rounded py-1 min-w-[140px]"
+                style={{ background: "#F5F2EC", border: "1px solid #E2DDD5" }}
+              >
                 <button
                   onClick={() => { onEdit(task); setMenuOpen(false); }}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/5 font-sans transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 font-sans text-xs transition-colors"
+                  style={{ color: "#6B655C" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#1C1814")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#6B655C")}
                 >
                   <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
                 {task.status !== "complete" && (
                   <button
                     onClick={() => { onStatusChange(task.id, "complete"); setMenuOpen(false); }}
-                    className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-impact-low hover:bg-white/5 font-sans transition-colors"
+                    className="flex items-center gap-2 w-full px-3 py-1.5 font-sans text-xs transition-colors"
+                    style={{ color: "#7B9E87" }}
                   >
                     <Check className="w-3.5 h-3.5" /> Mark complete
                   </button>
                 )}
                 <button
                   onClick={() => { onStatusChange(task.id, "dismissed"); setMenuOpen(false); }}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-text-tertiary hover:text-impact-high hover:bg-white/5 font-sans transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 font-sans text-xs transition-colors"
+                  style={{ color: "#9E9890" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#B85C5C")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
                 >
                   <X className="w-3.5 h-3.5" /> Dismiss
                 </button>
@@ -122,13 +142,13 @@ export function TaskCard({ task, onStatusChange, onEdit }: TaskCardProps) {
       </div>
 
       {/* Title */}
-      <h3 className="font-display text-[18px] font-semibold text-text-primary leading-snug mb-1">
+      <h3 className="font-display leading-snug mb-1" style={{ fontSize: 18, color: "#1C1814" }}>
         {task.title}
       </h3>
 
       {/* Description */}
       {task.description && (
-        <p className="text-sm text-text-secondary font-sans leading-relaxed line-clamp-2 mb-2">
+        <p className="font-sans leading-relaxed line-clamp-2 mb-2" style={{ fontSize: 13, color: "#6B655C", fontWeight: 300 }}>
           {task.description}
         </p>
       )}
@@ -136,12 +156,15 @@ export function TaskCard({ task, onStatusChange, onEdit }: TaskCardProps) {
       {/* Linked change */}
       {source && docId && (
         <div className="flex items-center gap-1.5 mt-2">
-          <span className="text-[11px] text-text-tertiary font-mono">{source.name}</span>
-          <span className="text-text-tertiary">·</span>
+          <span className="font-mono" style={{ fontSize: 11, color: "#9E9890" }}>{source.name}</span>
+          <span style={{ color: "#9E9890" }}>·</span>
           <Link
             href={`/document/${docId}`}
             onClick={(e) => e.stopPropagation()}
-            className="text-[11px] text-crimson/70 hover:text-crimson font-mono transition-colors"
+            className="font-mono transition-colors"
+            style={{ fontSize: 11, color: "rgba(196,133,90,0.70)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#C4855A")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(196,133,90,0.70)")}
           >
             View document →
           </Link>

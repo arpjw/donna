@@ -43,17 +43,27 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="pointer-events-auto flex items-center gap-3 bg-[#161616] border border-[#262626] rounded px-4 py-3 text-sm font-sans text-[#F0EEE9] shadow-lg min-w-[260px] max-w-[360px]"
-            style={{ borderLeft: `3px solid ${item.type === "success" ? "#5A9E6F" : "#C0392B"}` }}
+            className="pointer-events-auto flex items-center gap-3 rounded px-4 py-3 font-sans min-w-[260px] max-w-[360px]"
+            style={{
+              background: "#F5F2EC",
+              border: `1px solid ${item.type === "success" ? "#C4D8BC" : "#E8C4BC"}`,
+              borderLeft: `3px solid ${item.type === "success" ? "#7B9E87" : "#B85C5C"}`,
+              fontSize: 13,
+              color: "#1C1814",
+              boxShadow: "0 4px 16px rgba(28,24,20,0.10)",
+            }}
           >
             {item.type === "success"
-              ? <Check className="w-4 h-4 shrink-0 text-[#5A9E6F]" />
-              : <AlertCircle className="w-4 h-4 shrink-0 text-[#C0392B]" />
+              ? <Check className="w-4 h-4 shrink-0" style={{ color: "#7B9E87" }} />
+              : <AlertCircle className="w-4 h-4 shrink-0" style={{ color: "#B85C5C" }} />
             }
             <span className="flex-1">{item.message}</span>
             <button
               onClick={() => dismiss(item.id)}
-              className="p-0.5 rounded text-[#737373] hover:text-[#F0EEE9] transition-colors"
+              className="p-0.5 rounded transition-colors"
+              style={{ color: "#9E9890" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#1C1814")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
             >
               <X className="w-3.5 h-3.5" />
             </button>

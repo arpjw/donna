@@ -32,11 +32,11 @@ export default function DigestsPage() {
 
   return (
     <div className="max-w-[860px] mx-auto px-8 py-8">
-      <div className="border-b border-border pb-5 mb-8">
-        <h1 className="font-display text-3xl font-semibold text-text-primary">
+      <div className="pb-5 mb-8" style={{ borderBottom: "1px solid #E2DDD5" }}>
+        <h1 className="font-display" style={{ fontSize: 26, color: "#1C1814" }}>
           Digests
         </h1>
-        <p className="text-sm text-text-secondary font-sans mt-1">
+        <p className="font-sans text-sm mt-1" style={{ color: "#6B655C", fontWeight: 300 }}>
           Your weekly regulatory briefings
         </p>
       </div>
@@ -48,14 +48,17 @@ export default function DigestsPage() {
           <CardSkeleton />
         </div>
       ) : error ? (
-        <p className="text-text-secondary text-sm font-sans">{error}</p>
+        <p className="font-sans text-sm" style={{ color: "#6B655C" }}>{error}</p>
       ) : digests.length === 0 ? (
-        <div className="border border-border rounded p-12 text-center">
-          <BookOpen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="font-display text-xl text-text-primary mb-2">
+        <div
+          className="rounded p-12 text-center"
+          style={{ border: "1px solid #E2DDD5" }}
+        >
+          <BookOpen className="w-8 h-8 mx-auto mb-3" style={{ color: "#D5D0C8" }} />
+          <p className="font-display text-xl mb-2" style={{ color: "#1C1814" }}>
             No digests yet.
           </p>
-          <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
+          <p className="font-sans text-sm max-w-sm mx-auto" style={{ color: "#6B655C", fontWeight: 300 }}>
             Your first digest will be sent on your scheduled day.
           </p>
         </div>
@@ -63,21 +66,34 @@ export default function DigestsPage() {
         <div className="space-y-3">
           {digests.map((digest) => (
             <Link key={digest.id} href={`/digests/${digest.id}`}>
-              <div className="border border-border rounded p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all cursor-pointer group">
+              <div
+                className="rounded p-5 cursor-pointer transition-colors group"
+                style={{ background: "#F5F2EC", border: "1px solid #E2DDD5" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,133,90,0.30)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "#E2DDD5";
+                }}
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">
+                  <span className="font-mono uppercase tracking-wider" style={{ fontSize: 10, color: "#9E9890" }}>
                     {formatDate(digest.period_start)} — {formatDate(digest.period_end)}
                   </span>
-                  <span className={`text-[10px] font-mono uppercase tracking-wider ${
-                    digest.status === "sent" ? "text-impact-low" : "text-text-tertiary"
-                  }`}>
+                  <span
+                    className="font-mono uppercase tracking-wider"
+                    style={{
+                      fontSize: 10,
+                      color: digest.status === "sent" ? "#7B9E87" : "#9E9890",
+                    }}
+                  >
                     {digest.status}
                   </span>
                 </div>
-                <p className="font-display text-lg font-semibold text-text-primary group-hover:text-white transition-colors">
+                <p className="font-display text-lg" style={{ color: "#1C1814" }}>
                   {digest.headline}
                 </p>
-                <p className="text-xs text-text-tertiary font-mono mt-1">
+                <p className="font-mono mt-1" style={{ fontSize: 11, color: "#9E9890" }}>
                   {digest.change_ids.length} changes included
                 </p>
               </div>

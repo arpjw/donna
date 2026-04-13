@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -28,21 +27,31 @@ export function SearchBar({ onSearch, loading, initialValue = "" }: SearchBarPro
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9E9890" }} />
         <input
           ref={inputRef}
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Search regulations, topics, requirements..."
-          className={cn(
-            "w-full bg-card border border-border rounded pl-11 pr-4 py-3.5 text-text-primary font-sans text-sm placeholder:text-text-tertiary",
-            "focus:outline-none focus:border-crimson/50 focus:ring-1 focus:ring-crimson/20",
-            "transition-colors"
-          )}
+          className="w-full rounded pl-11 pr-4 py-3.5 font-sans text-sm focus:outline-none transition-colors"
+          style={{
+            background: "#F5F2EC",
+            border: "1px solid #E2DDD5",
+            color: "#1C1814",
+          }}
+          onFocus={(e) => {
+            (e.currentTarget as HTMLInputElement).style.borderColor = "rgba(196,133,90,0.50)";
+          }}
+          onBlur={(e) => {
+            (e.currentTarget as HTMLInputElement).style.borderColor = "#E2DDD5";
+          }}
         />
         {loading && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-text-tertiary/30 border-t-text-tertiary rounded-full animate-spin" />
+          <div
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 rounded-full animate-spin"
+            style={{ borderColor: "rgba(158,152,144,0.30)", borderTopColor: "#9E9890" }}
+          />
         )}
       </div>
     </form>

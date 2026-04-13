@@ -52,7 +52,6 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
   const documentUrl = doc.raw_document_url ?? change?.processed_document?.raw_document_url;
   const publishedAt = doc.published_at ?? change?.processed_document?.published_at;
 
-  // Offsets for the combined text: plain_summary + "\n\n" + detailed_summary
   const plainOffset = 0;
   const detailedBaseOffset = doc.plain_summary.length + 2;
 
@@ -62,7 +61,6 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
     localStorage.setItem(`notes-panel-${doc.id}`, String(next));
   };
 
-  // Load annotations
   const loadAnnotations = useCallback(async () => {
     try {
       const token = await getToken();
@@ -70,7 +68,7 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
       const data = await annotationsApi.list(doc.id, token);
       setAnnotations(data);
     } catch {
-      // non-fatal — document still readable without annotations
+      // non-fatal
     }
   }, [getToken, doc.id]);
 
@@ -107,7 +105,6 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
     }
   };
 
-  // Build paragraph offsets for detailed_summary
   const detailedParagraphs = doc.detailed_summary
     ? doc.detailed_summary.split("\n\n")
     : [];
@@ -115,18 +112,20 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
   let acc = detailedBaseOffset;
   for (const para of detailedParagraphs) {
     paraOffsets.push(acc);
-    acc += para.length + 2; // +2 for the "\n\n" separator
+    acc += para.length + 2;
   }
 
   return (
-    <div className="min-h-screen bg-doc-bg text-doc-text transition-colors">
-      {/* Right-margin buffer when panel is open */}
+    <div className="min-h-screen transition-colors" style={{ background: "#F5F2EC", color: "#1C1814" }}>
       <div className={panelOpen ? "pr-[280px]" : ""}>
         <div className="max-w-[720px] mx-auto px-4 py-6 sm:px-14 sm:py-12">
           {/* Back link */}
           <Link
             href="/feed"
-            className="inline-flex items-center gap-1.5 text-xs text-doc-text-secondary hover:text-doc-text transition-colors mb-10 font-mono uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 mb-10 font-mono uppercase tracking-wider transition-colors"
+            style={{ fontSize: 10, color: "#9E9890" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#6B655C")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#9E9890")}
           >
             ← Back to feed
           </Link>
@@ -138,7 +137,10 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                 {impactLevel && <ImpactBadge level={impactLevel} />}
                 {changeType && <ChangeTypeBadge type={changeType} />}
                 {source && (
-                  <span className="text-[11px] text-doc-text-secondary font-mono uppercase tracking-wider">
+                  <span
+                    className="font-mono uppercase tracking-wider"
+                    style={{ fontSize: 10, color: "#9E9890" }}
+                  >
                     {source.name}
                   </span>
                 )}
@@ -146,22 +148,27 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
               {/* Notes toggle */}
               <button
                 onClick={togglePanel}
-                className={`flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider shrink-0 px-2.5 py-1 rounded border transition-colors ${
-                  panelOpen
-                    ? "bg-doc-accent/10 text-doc-accent border-doc-accent/30"
-                    : "text-doc-text-secondary border-doc-border hover:text-doc-text hover:border-doc-text-secondary"
-                }`}
+                className="flex items-center gap-1.5 font-mono uppercase tracking-wider shrink-0 px-2.5 py-1 rounded border transition-colors"
+                style={{
+                  fontSize: 10,
+                  ...(panelOpen
+                    ? { background: "rgba(196,133,90,0.10)", color: "#C4855A", borderColor: "rgba(196,133,90,0.30)" }
+                    : { color: "#9E9890", borderColor: "#E2DDD5" }),
+                }}
               >
                 <StickyNote className="w-3.5 h-3.5" />
                 Notes {annotations.length > 0 ? `(${annotations.length})` : ""}
               </button>
             </div>
 
-            <h1 className="font-display text-[32px] font-semibold text-doc-text leading-tight mb-4">
+            <h1
+              className="font-display leading-tight mb-4"
+              style={{ fontSize: 32, color: "#1C1814" }}
+            >
               {headline}
             </h1>
 
-            <div className="flex items-center gap-6 text-xs text-doc-text-secondary font-mono">
+            <div className="flex items-center gap-6 font-mono" style={{ fontSize: 11, color: "#9E9890" }}>
               {publishedAt && (
                 <span>Published {formatDate(publishedAt)}</span>
               )}
@@ -170,7 +177,8 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                   href={documentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-doc-accent hover:underline"
+                  className="inline-flex items-center gap-1 hover:underline"
+                  style={{ color: "#C4855A" }}
                 >
                   View source <ExternalLink className="w-3 h-3" />
                 </a>
@@ -179,32 +187,35 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
           </header>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-4 mb-10 p-5 bg-doc-bg border border-doc-border rounded">
+          <div
+            className="grid grid-cols-3 gap-4 mb-10 p-5 rounded"
+            style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}
+          >
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-doc-text-secondary mb-1">
+              <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>
                 Significance
               </p>
-              <p className="font-mono text-lg text-doc-text">
+              <p className="font-mono text-lg" style={{ color: "#1C1814" }}>
                 {doc.significance_score != null
                   ? (doc.significance_score * 100).toFixed(0) + "%"
                   : "—"}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-doc-text-secondary mb-1">
+              <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>
                 Industries
               </p>
-              <p className="text-sm text-doc-text font-sans">
+              <p className="font-sans text-sm" style={{ color: "#1C1814" }}>
                 {doc.affected_industries?.length
                   ? doc.affected_industries.slice(0, 3).join(", ")
                   : "—"}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-doc-text-secondary mb-1">
+              <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>
                 Jurisdictions
               </p>
-              <p className="text-sm text-doc-text font-sans">
+              <p className="font-sans text-sm" style={{ color: "#1C1814" }}>
                 {doc.affected_jurisdictions?.length
                   ? doc.affected_jurisdictions.slice(0, 3).join(", ")
                   : "—"}
@@ -212,9 +223,9 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
             </div>
           </div>
 
-          {/* Plain summary — annotatable */}
+          {/* Plain summary */}
           <section className="mb-10">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-doc-text-secondary mb-3">
+            <p className="font-mono uppercase tracking-widest mb-3" style={{ fontSize: 10, color: "#9E9890" }}>
               In plain language
             </p>
             <AnnotatableSection
@@ -222,16 +233,26 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
               globalOffset={plainOffset}
               annotations={annotations}
               onSelectionReady={setPending}
-              className="text-xl font-sans text-doc-text leading-relaxed border-l-2 border-doc-accent pl-4"
+              className="font-sans leading-relaxed"
+              style={{
+                fontSize: 18,
+                color: "#1C1814",
+                borderLeft: "2px solid #C4855A",
+                paddingLeft: 16,
+                fontWeight: 300,
+              }}
             />
           </section>
 
-          <hr className="border-doc-border mb-10" />
+          <hr style={{ borderColor: "#E2DDD5", marginBottom: 40 }} />
 
-          {/* Detailed summary — annotatable, paragraph by paragraph */}
+          {/* Detailed summary */}
           {doc.detailed_summary && (
             <section className="mb-10">
-              <h2 className="font-display text-xl font-semibold text-doc-text mb-4">
+              <h2
+                className="font-display italic mb-4"
+                style={{ fontSize: 18, color: "#1C1814" }}
+              >
                 Detailed Analysis
               </h2>
               <div className="space-y-4">
@@ -242,7 +263,8 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                     globalOffset={paraOffsets[i]}
                     annotations={annotations}
                     onSelectionReady={setPending}
-                    className="text-sm text-doc-text-secondary font-sans leading-relaxed"
+                    className="font-sans leading-relaxed"
+                    style={{ fontSize: 14, color: "#6B655C", fontWeight: 300, lineHeight: 1.7 }}
                   />
                 ))}
               </div>
@@ -254,21 +276,30 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-doc-accent" />
-                  <h2 className="font-display text-xl font-semibold text-doc-text">
+                  <AlertCircle className="w-4 h-4" style={{ color: "#C4855A" }} />
+                  <h2
+                    className="font-display italic"
+                    style={{ fontSize: 18, color: "#1C1814" }}
+                  >
                     What to do
                   </h2>
                 </div>
                 <button
                   onClick={() => setTaskSlideOver(true)}
-                  className="flex items-center gap-1.5 text-[11px] text-doc-text-secondary hover:text-doc-accent font-sans transition-colors"
+                  className="flex items-center gap-1.5 font-sans transition-colors"
+                  style={{ fontSize: 11, color: "#9E9890" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#C4855A")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
                 >
                   <ClipboardList className="w-3.5 h-3.5" />
                   Create task
                 </button>
               </div>
-              <div className="p-5 bg-doc-accent/5 border border-doc-accent/20 rounded">
-                <p className="text-sm font-sans text-doc-text leading-relaxed">
+              <div
+                className="p-5 rounded"
+                style={{ background: "rgba(196,133,90,0.06)", border: "1px solid rgba(196,133,90,0.20)" }}
+              >
+                <p className="font-sans leading-relaxed" style={{ fontSize: 14, color: "#1C1814", fontWeight: 300 }}>
                   {doc.recommended_actions}
                 </p>
               </div>
@@ -279,8 +310,11 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
           {doc.key_dates && doc.key_dates.length > 0 && (
             <section className="mb-10">
               <div className="flex items-center gap-2 mb-3">
-                <Calendar className="w-4 h-4 text-doc-text-secondary" />
-                <h2 className="font-display text-xl font-semibold text-doc-text">
+                <Calendar className="w-4 h-4" style={{ color: "#9E9890" }} />
+                <h2
+                  className="font-display italic"
+                  style={{ fontSize: 18, color: "#1C1814" }}
+                >
                   Key Dates
                 </h2>
               </div>
@@ -288,12 +322,13 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                 {doc.key_dates.map((kd, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between py-2.5 border-b border-doc-border last:border-0"
+                    className="flex items-center justify-between py-2.5"
+                    style={{ borderBottom: i < doc.key_dates.length - 1 ? "1px solid #E2DDD5" : "none" }}
                   >
-                    <span className="text-sm text-doc-text-secondary font-sans">
+                    <span className="font-sans text-sm" style={{ color: "#6B655C" }}>
                       {kd.label}
                     </span>
-                    <span className="font-mono text-sm text-doc-text">{kd.date}</span>
+                    <span className="font-mono text-sm" style={{ color: "#1C1814" }}>{kd.date}</span>
                   </div>
                 ))}
               </div>
@@ -304,8 +339,11 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
           {doc.taxonomy_tags && doc.taxonomy_tags.length > 0 && (
             <section className="mb-10">
               <div className="flex items-center gap-2 mb-3">
-                <Tag className="w-4 h-4 text-doc-text-secondary" />
-                <h2 className="font-display text-xl font-semibold text-doc-text">
+                <Tag className="w-4 h-4" style={{ color: "#9E9890" }} />
+                <h2
+                  className="font-display italic"
+                  style={{ fontSize: 18, color: "#1C1814" }}
+                >
                   Tags
                 </h2>
               </div>
@@ -313,7 +351,8 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                 {doc.taxonomy_tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[11px] font-mono uppercase tracking-wider px-2 py-1 bg-doc-border rounded text-doc-text-secondary"
+                    className="font-mono uppercase tracking-wider px-2 py-1 rounded"
+                    style={{ fontSize: 10, background: "#EEE9E0", border: "1px solid #D5D0C8", color: "#6B655C" }}
                   >
                     {tag}
                   </span>
@@ -324,11 +363,14 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
 
           {/* Significance reasoning */}
           {doc.significance_reasoning && (
-            <div className="mb-10 p-4 bg-doc-border/50 rounded">
-              <p className="text-[10px] font-mono uppercase tracking-widest text-doc-text-secondary mb-1">
+            <div
+              className="mb-10 p-4 rounded"
+              style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}
+            >
+              <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>
                 Significance
               </p>
-              <p className="text-sm font-sans text-doc-text-secondary italic">
+              <p className="font-sans text-sm italic" style={{ color: "#6B655C", fontWeight: 300 }}>
                 {doc.significance_reasoning}
               </p>
             </div>
@@ -336,8 +378,11 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
 
           {/* Related documents */}
           {related && related.length > 0 && (
-            <section className="mt-12 pt-8 border-t border-doc-border">
-              <h2 className="font-display text-xl font-semibold text-doc-text mb-4">
+            <section className="mt-12 pt-8" style={{ borderTop: "1px solid #E2DDD5" }}>
+              <h2
+                className="font-display italic mb-4"
+                style={{ fontSize: 18, color: "#1C1814" }}
+              >
                 Related Documents
               </h2>
               <div className="space-y-3">
@@ -345,19 +390,26 @@ export function DocumentView({ doc, change, related }: DocumentViewProps) {
                   <Link
                     key={r.processed_document.id}
                     href={`/document/${r.processed_document.id}`}
-                    className="block p-4 border border-doc-border rounded hover:border-doc-accent/30 transition-colors group"
+                    className="block p-4 rounded transition-colors group"
+                    style={{ border: "1px solid #E2DDD5" }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(196,133,90,0.40)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.borderColor = "#E2DDD5";
+                    }}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-mono text-doc-text-secondary uppercase tracking-wider">
+                      <span className="font-mono uppercase tracking-wider" style={{ fontSize: 10, color: "#9E9890" }}>
                         {(r.similarity_score * 100).toFixed(0)}% match
                       </span>
                       {r.source && (
-                        <span className="text-[10px] font-mono text-doc-text-secondary">
+                        <span className="font-mono" style={{ fontSize: 10, color: "#9E9890" }}>
                           {r.source.name}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-sans text-doc-text group-hover:text-doc-accent transition-colors line-clamp-2">
+                    <p className="font-sans text-sm line-clamp-2" style={{ color: "#6B655C", fontWeight: 300 }}>
                       {r.processed_document.plain_summary}
                     </p>
                   </Link>

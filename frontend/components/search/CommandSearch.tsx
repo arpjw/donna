@@ -59,10 +59,7 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
   }, [query, getToken]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onClose();
-      return;
-    }
+    if (e.key === "Escape") { onClose(); return; }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
@@ -100,20 +97,25 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
       className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
       onClick={onClose}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* Panel */}
       <div
-        className="relative w-full max-w-[600px] mx-4 bg-card border border-border rounded-md shadow-2xl overflow-hidden"
+        className="relative w-full max-w-[600px] mx-4 rounded-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        style={{ background: "#1C1814", border: "1px solid #2A2420" }}
       >
         {/* Input */}
-        <div className="flex items-center gap-3 px-4 border-b border-border">
+        <div
+          className="flex items-center gap-3 px-4"
+          style={{ borderBottom: "1px solid #2A2420" }}
+        >
           {loading ? (
-            <div className="w-4 h-4 border-2 border-text-tertiary/30 border-t-text-tertiary rounded-full animate-spin shrink-0" />
+            <div
+              className="w-4 h-4 border-2 rounded-full animate-spin shrink-0"
+              style={{ borderColor: "rgba(74,69,63,0.3)", borderTopColor: "#4A453F" }}
+            />
           ) : (
-            <Search className="w-4 h-4 text-text-tertiary shrink-0" />
+            <Search className="w-4 h-4 shrink-0" style={{ color: "#4A453F" }} />
           )}
           <input
             ref={inputRef}
@@ -122,11 +124,14 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search regulations, topics, requirements..."
-            className="flex-1 bg-transparent py-4 text-sm text-text-primary font-sans placeholder:text-text-tertiary focus:outline-none"
+            className="flex-1 bg-transparent py-4 font-sans focus:outline-none"
+            style={{ fontSize: 14, color: "#D4CFC7" }}
           />
           <button
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-secondary transition-colors"
+            style={{ color: "#4A453F" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#8A837A")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#4A453F")}
           >
             <X className="w-4 h-4" />
           </button>
@@ -141,50 +146,67 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
                 onClick={() => navigateTo(r.processed_document.id)}
                 className={cn(
                   "w-full text-left px-4 py-3 flex items-start gap-3 transition-colors group",
-                  i === selectedIndex
-                    ? "bg-crimson/10 text-text-primary"
-                    : "hover:bg-white/5 text-text-secondary"
                 )}
+                style={
+                  i === selectedIndex
+                    ? { background: "rgba(196,133,90,0.10)" }
+                    : {}
+                }
+                onMouseEnter={(e) => {
+                  if (i !== selectedIndex) {
+                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (i !== selectedIndex) {
+                    (e.currentTarget as HTMLButtonElement).style.background = "";
+                  }
+                }}
               >
                 <div className="flex-1 min-w-0">
                   {r.change?.headline && (
-                    <p className="text-sm font-sans font-medium text-text-primary truncate">
+                    <p className="font-sans font-medium text-sm truncate" style={{ color: "#D4CFC7" }}>
                       {r.change.headline}
                     </p>
                   )}
-                  <p className="text-xs text-text-secondary font-sans line-clamp-1 mt-0.5">
+                  <p className="font-sans text-xs line-clamp-1 mt-0.5" style={{ color: "#6B655C" }}>
                     {r.processed_document.plain_summary}
                   </p>
                   {r.source && (
-                    <p className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider mt-1">
+                    <p className="font-mono uppercase tracking-wider mt-1" style={{ fontSize: 10, color: "#4A453F" }}>
                       {r.source.name} · {(r.similarity_score * 100).toFixed(0)}% match
                     </p>
                   )}
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-text-tertiary shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRight className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#4A453F" }} />
               </button>
             ))}
           </div>
         )}
 
-        {/* Empty with query */}
         {query.trim() && !loading && results.length === 0 && (
           <div className="px-4 py-8 text-center">
-            <p className="text-sm text-text-secondary font-sans">
+            <p className="font-sans text-sm" style={{ color: "#6B655C" }}>
               No results for "{query}"
             </p>
           </div>
         )}
 
         {/* Footer hint */}
-        <div className="px-4 py-2 border-t border-border flex items-center justify-between">
-          <p className="text-[10px] font-mono text-text-tertiary">
+        <div
+          className="px-4 py-2 flex items-center justify-between"
+          style={{ borderTop: "1px solid #2A2420" }}
+        >
+          <p className="font-mono" style={{ fontSize: 10, color: "#4A453F" }}>
             ↑↓ navigate · ↵ open · esc close
           </p>
           {query.trim() && (
             <button
               onClick={navigateToSearch}
-              className="text-[10px] font-mono text-crimson hover:text-crimson/80 transition-colors"
+              className="font-mono transition-colors"
+              style={{ fontSize: 10, color: "#C4855A" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#D4956A")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#C4855A")}
             >
               View all results →
             </button>

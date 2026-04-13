@@ -69,18 +69,25 @@ export default function FeedPage() {
         lastUpdated={lastUpdated}
       />
 
-      <div className="px-8 py-6 space-y-4">
+      {/* Feed area — #DDD8D0 background with 1px gaps between cards */}
+      <div
+        className="py-0"
+        style={{ background: "#DDD8D0", display: "flex", flexDirection: "column", gap: 1 }}
+      >
         {loading && items.length === 0 ? (
-          <>
+          <div style={{ background: "#F5F2EC", display: "flex", flexDirection: "column", gap: 1 }}>
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
-          </>
+          </div>
         ) : error ? (
-          <div className="border border-border rounded p-8 text-center">
-            <p className="text-text-secondary font-sans text-sm">{error}</p>
+          <div
+            className="p-8 text-center"
+            style={{ background: "#F5F2EC" }}
+          >
+            <p className="font-sans text-sm" style={{ color: "#6B655C" }}>{error}</p>
             <Button
               variant="ghost"
               size="sm"
@@ -98,7 +105,7 @@ export default function FeedPage() {
               <ChangeCard key={item.change.id} item={item} />
             ))}
             {hasMore && (
-              <div className="pt-4 pb-8 flex justify-center">
+              <div className="py-6 flex justify-center" style={{ background: "#F5F2EC" }}>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -118,11 +125,14 @@ export default function FeedPage() {
 
 function EmptyState() {
   return (
-    <div className="border border-border rounded p-12 text-center mt-4">
-      <p className="font-display text-xl text-text-primary mb-2">
+    <div
+      className="p-12 text-center"
+      style={{ background: "#F5F2EC" }}
+    >
+      <p className="font-display text-xl mb-2" style={{ color: "#1C1814" }}>
         Your regulatory feed is empty.
       </p>
-      <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
+      <p className="font-sans text-sm max-w-sm mx-auto" style={{ color: "#6B655C", fontWeight: 300 }}>
         Donna is monitoring sources and will surface relevant changes as they are published.
       </p>
     </div>

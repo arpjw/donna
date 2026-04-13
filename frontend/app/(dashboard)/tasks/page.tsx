@@ -26,14 +26,12 @@ export default function TasksPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
   const [dueFilter, setDueFilter] = useState<DueFilter>("all");
-
   const [editTask, setEditTask] = useState<ComplianceTask | null>(null);
 
   const load = useCallback(async () => {
     try {
       const token = await getToken();
       const today = new Date();
-
       const params: Record<string, string> = {};
       if (statusFilter !== "all") params.status = statusFilter;
       if (priorityFilter !== "all") params.priority = priorityFilter;
@@ -90,36 +88,23 @@ export default function TasksPage() {
       <div className="grid grid-cols-2 gap-3">
         {loading ? (
           <>
-            <div className="bg-card border border-border rounded p-3 animate-pulse">
-              <div className="h-7 w-8 bg-white/5 rounded mb-1" />
-              <div className="h-3 w-12 bg-white/5 rounded" />
-            </div>
-            <div className="bg-card border border-border rounded p-3 animate-pulse">
-              <div className="h-7 w-8 bg-white/5 rounded mb-1" />
-              <div className="h-3 w-16 bg-white/5 rounded" />
-            </div>
-            <div className="bg-card border border-border rounded p-3 animate-pulse">
-              <div className="h-7 w-8 bg-white/5 rounded mb-1" />
-              <div className="h-3 w-14 bg-white/5 rounded" />
-            </div>
-            <div className="bg-card border border-border rounded p-3 animate-pulse">
-              <div className="h-7 w-8 bg-white/5 rounded mb-1" />
-              <div className="h-3 w-14 bg-white/5 rounded" />
-            </div>
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="rounded p-3 skeleton" style={{ height: 64 }} />
+            ))}
           </>
         ) : (
           <>
-            <StatChip label="Open" value={stats?.open ?? 0} color="text-text-primary" />
-            <StatChip label="In Progress" value={stats?.in_progress ?? 0} color="text-impact-medium" />
-            <StatChip label="Complete" value={stats?.complete ?? 0} color="text-impact-low" />
-            <StatChip label="Overdue" value={stats?.overdue ?? 0} color="text-impact-high" />
+            <StatChip label="Open" value={stats?.open ?? 0} color="#1C1814" />
+            <StatChip label="In Progress" value={stats?.in_progress ?? 0} color="#D4893A" />
+            <StatChip label="Complete" value={stats?.complete ?? 0} color="#7B9E87" />
+            <StatChip label="Overdue" value={stats?.overdue ?? 0} color="#B85C5C" />
           </>
         )}
       </div>
 
       {/* Status filter */}
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-2">
+        <p className="font-mono uppercase tracking-widest mb-2" style={{ fontSize: 10, color: "#9E9890" }}>
           Status
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -136,7 +121,7 @@ export default function TasksPage() {
 
       {/* Priority filter */}
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-2">
+        <p className="font-mono uppercase tracking-widest mb-2" style={{ fontSize: 10, color: "#9E9890" }}>
           Priority
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -153,7 +138,7 @@ export default function TasksPage() {
 
       {/* Due date filter */}
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-2">
+        <p className="font-mono uppercase tracking-widest mb-2" style={{ fontSize: 10, color: "#9E9890" }}>
           Due date
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -177,19 +162,19 @@ export default function TasksPage() {
 
   return (
     <div className="max-w-[860px] mx-auto px-4 sm:px-8 py-8">
-      <div className="border-b border-border pb-5 mb-8">
+      <div className="pb-5 mb-8" style={{ borderBottom: "1px solid #E2DDD5" }}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-semibold text-text-primary">
+            <h1 className="font-display" style={{ fontSize: 26, color: "#1C1814" }}>
               Tasks
             </h1>
-            <p className="text-sm text-text-secondary font-sans mt-1">
+            <p className="font-sans text-sm mt-1" style={{ color: "#6B655C", fontWeight: 300 }}>
               Track compliance actions from regulatory changes
             </p>
           </div>
-          {/* Mobile filters button */}
           <button
-            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 border border-border rounded text-xs font-mono text-text-secondary hover:text-text-primary transition-colors"
+            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded font-mono transition-colors"
+            style={{ fontSize: 11, border: "1px solid #E2DDD5", color: "#6B655C" }}
             onClick={() => setMobileFiltersOpen(true)}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -199,7 +184,7 @@ export default function TasksPage() {
       </div>
 
       <div className="flex gap-6">
-        {/* Left column: stats + filters — hidden on mobile */}
+        {/* Left column — desktop */}
         <aside className="hidden md:block w-[340px] shrink-0">
           {filterPanel}
         </aside>
@@ -208,38 +193,20 @@ export default function TasksPage() {
         <div className="flex-1 min-w-0">
           {loading ? (
             <div className="space-y-3">
-              <div className="border border-border rounded p-6 space-y-3 animate-pulse">
-                <div className="flex gap-2">
-                  <div className="h-4 w-12 bg-white/5 rounded" />
-                  <div className="h-4 w-20 bg-white/5 rounded" />
-                </div>
-                <div className="h-5 w-3/4 bg-white/5 rounded" />
-                <div className="h-4 w-full bg-white/5 rounded" />
-              </div>
-              <div className="border border-border rounded p-6 space-y-3 animate-pulse">
-                <div className="flex gap-2">
-                  <div className="h-4 w-16 bg-white/5 rounded" />
-                  <div className="h-4 w-24 bg-white/5 rounded" />
-                </div>
-                <div className="h-5 w-2/3 bg-white/5 rounded" />
-                <div className="h-4 w-full bg-white/5 rounded" />
-              </div>
-              <div className="border border-border rounded p-6 space-y-3 animate-pulse">
-                <div className="flex gap-2">
-                  <div className="h-4 w-10 bg-white/5 rounded" />
-                  <div className="h-4 w-20 bg-white/5 rounded" />
-                </div>
-                <div className="h-5 w-4/5 bg-white/5 rounded" />
-                <div className="h-4 w-2/3 bg-white/5 rounded" />
-              </div>
+              {[1,2,3].map((i) => (
+                <div key={i} className="rounded p-6 space-y-3 skeleton" style={{ height: 120 }} />
+              ))}
             </div>
           ) : error ? (
-            <p className="text-sm text-text-secondary font-sans">{error}</p>
+            <p className="font-sans text-sm" style={{ color: "#6B655C" }}>{error}</p>
           ) : tasks.length === 0 ? (
-            <div className="border border-border rounded p-12 text-center">
-              <ClipboardList className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-              <p className="font-display text-xl text-text-primary mb-2">No tasks yet.</p>
-              <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
+            <div
+              className="rounded p-12 text-center"
+              style={{ border: "1px solid #E2DDD5", background: "#F5F2EC" }}
+            >
+              <ClipboardList className="w-8 h-8 mx-auto mb-3" style={{ color: "#D5D0C8" }} />
+              <p className="font-display text-xl mb-2" style={{ color: "#1C1814" }}>No tasks yet.</p>
+              <p className="font-sans text-sm max-w-sm mx-auto" style={{ color: "#6B655C", fontWeight: 300 }}>
                 Create one from any regulatory change in your feed.
               </p>
             </div>
@@ -258,21 +225,25 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Mobile filters bottom sheet */}
+      {/* Mobile filters */}
       {mobileFiltersOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/30 md:hidden"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#161616] border-t border-[#262626] rounded-t-lg px-5 py-5 md:hidden max-h-[80vh] overflow-y-auto">
+          <div
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-lg px-5 py-5 md:hidden max-h-[80vh] overflow-y-auto"
+            style={{ background: "#F5F2EC", borderTop: "1px solid #E2DDD5" }}
+          >
             <div className="flex items-center justify-between mb-5">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-text-tertiary">
+              <p className="font-mono uppercase tracking-widest" style={{ fontSize: 10, color: "#9E9890" }}>
                 Filters
               </p>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="p-1.5 rounded text-text-tertiary hover:text-text-secondary transition-colors"
+                className="p-1.5 rounded transition-colors"
+                style={{ color: "#9E9890" }}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -281,7 +252,8 @@ export default function TasksPage() {
             <div className="mt-6">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full bg-crimson hover:bg-crimson/90 text-white rounded py-2.5 text-sm font-sans font-medium transition-colors"
+                className="w-full text-white rounded py-2.5 font-sans font-medium text-sm transition-colors"
+                style={{ background: "#C4855A" }}
               >
                 Apply filters
               </button>
@@ -290,7 +262,6 @@ export default function TasksPage() {
         </>
       )}
 
-      {/* Inline edit panel */}
       {editTask && (
         <EditTaskPanel
           task={editTask}
@@ -304,9 +275,12 @@ export default function TasksPage() {
 
 function StatChip({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="bg-card border border-border rounded p-3">
-      <p className={cn("font-mono text-2xl font-semibold", color)}>{value}</p>
-      <p className="text-[11px] text-text-tertiary font-sans mt-0.5">{label}</p>
+    <div
+      className="rounded p-3"
+      style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}
+    >
+      <p className="font-mono text-2xl font-semibold" style={{ color }}>{value}</p>
+      <p className="font-sans mt-0.5" style={{ fontSize: 11, color: "#9E9890" }}>{label}</p>
     </div>
   );
 }
@@ -315,12 +289,14 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
   return (
     <button
       onClick={onClick}
-      className={cn(
-        "px-2.5 py-1 rounded text-[11px] font-mono uppercase tracking-wider border transition-colors",
-        active
-          ? "bg-crimson/10 text-crimson border-crimson/30"
-          : "text-text-tertiary border-border hover:text-text-secondary hover:border-white/20"
-      )}
+      className="rounded font-mono uppercase tracking-wider transition-colors"
+      style={{
+        fontSize: 11,
+        padding: "4px 10px",
+        ...(active
+          ? { background: "#1C1814", color: "#F5F2EC", border: "1px solid #1C1814" }
+          : { color: "#9E9890", border: "1px solid #E2DDD5" }),
+      }}
     >
       {label}
     </button>
@@ -365,41 +341,62 @@ function EditTaskPanel({
 
   return (
     <>
-      <div className="fixed inset-0 z-[90] bg-black/40" onClick={onClose} />
-      <aside className="fixed top-0 right-0 h-full z-[100] w-full sm:w-[320px] bg-[#161616] border-l border-[#262626] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#262626]">
-          <h2 className="font-display text-lg font-semibold text-text-primary">Edit task</h2>
-          <button onClick={onClose} className="p-1.5 rounded text-text-tertiary hover:text-text-secondary hover:bg-white/5 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+      <div className="fixed inset-0 z-[90] bg-black/30" onClick={onClose} />
+      <aside
+        className="fixed top-0 right-0 h-full z-[100] w-full sm:w-[320px] flex flex-col"
+        style={{ background: "#1C1814", borderLeft: "1px solid #2A2420" }}
+      >
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ borderBottom: "1px solid #2A2420" }}
+        >
+          <h2 className="font-display text-lg" style={{ color: "#D4CFC7" }}>Edit task</h2>
+          <button onClick={onClose} className="p-1.5 rounded" style={{ color: "#4A453F" }}>
+            <X className="w-4 h-4" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-1.5">Title</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm font-sans text-text-primary focus:outline-none focus:border-crimson/50 transition-colors" />
+            <label className="block font-mono uppercase tracking-widest mb-1.5" style={{ fontSize: 10, color: "#4A453F" }}>Title</label>
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="input-dark" />
           </div>
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-1.5">Description</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm font-sans text-text-primary focus:outline-none focus:border-crimson/50 transition-colors resize-none" />
+            <label className="block font-mono uppercase tracking-widest mb-1.5" style={{ fontSize: 10, color: "#4A453F" }}>Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="input-dark" style={{ resize: "none" }} />
           </div>
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-1.5">Priority</label>
+            <label className="block font-mono uppercase tracking-widest mb-1.5" style={{ fontSize: 10, color: "#4A453F" }}>Priority</label>
             <div className="flex gap-2">
               {(["high", "medium", "low"] as TaskPriority[]).map((p) => (
-                <button key={p} onClick={() => setPriority(p)} className={cn("flex-1 py-1.5 rounded border text-[11px] font-mono uppercase tracking-wider transition-colors", priority === p ? "bg-white/5 text-text-primary border-white/20" : "text-text-tertiary border-[#262626] hover:border-white/20")}>
+                <button
+                  key={p}
+                  onClick={() => setPriority(p)}
+                  className="flex-1 py-1.5 rounded font-mono uppercase tracking-wider"
+                  style={{
+                    fontSize: 11,
+                    ...(priority === p
+                      ? { background: "rgba(255,255,255,0.05)", color: "#D4CFC7", border: "1px solid rgba(255,255,255,0.15)" }
+                      : { color: "#4A453F", border: "1px solid #2A2420" }),
+                  }}
+                >
                   {p}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-text-tertiary mb-1.5">Due date</label>
-            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm font-mono text-text-primary focus:outline-none focus:border-crimson/50 transition-colors" />
+            <label className="block font-mono uppercase tracking-widest mb-1.5" style={{ fontSize: 10, color: "#4A453F" }}>Due date</label>
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="input-dark font-mono" />
           </div>
-          {error && <p className="text-xs text-impact-high font-sans">{error}</p>}
+          {error && <p className="font-sans text-xs" style={{ color: "#B85C5C" }}>{error}</p>}
         </div>
-        <div className="px-5 py-4 border-t border-[#262626]">
-          <button onClick={save} disabled={saving} className="w-full bg-crimson hover:bg-crimson/90 disabled:opacity-50 text-white rounded py-2.5 text-sm font-sans font-medium transition-colors">
+        <div className="px-5 py-4" style={{ borderTop: "1px solid #2A2420" }}>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="w-full text-white rounded py-2.5 font-sans font-medium text-sm disabled:opacity-50"
+            style={{ background: "#C4855A" }}
+          >
             {saving ? "Saving..." : "Save changes"}
           </button>
         </div>

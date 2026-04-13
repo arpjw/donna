@@ -9,45 +9,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark shell palette
-        shell: "#0C0C0C",
-        surface: "#111111",
-        card: "#161616",
-        border: "#262626",
-        // Text
-        "text-primary": "#F0EEE9",
-        "text-secondary": "#737373",
-        "text-tertiary": "#404040",
-        // Accent
-        crimson: {
-          DEFAULT: "#C0392B",
-          hover: "rgba(192, 57, 43, 0.10)",
+        // Shell / navigation
+        shell: "#0E0B08",
+        sidebar: "#1C1814",
+        // Main surface (parchment)
+        surface: "#F5F2EC",
+        "feed-gap": "#DDD8D0",
+        border: "#E2DDD5",
+        // Text — used on light surfaces
+        "text-primary": "#1C1814",
+        "text-secondary": "#6B655C",
+        "text-tertiary": "#9E9890",
+        "text-muted": "#B5AFA5",
+        // Accent — amber
+        amber: {
+          DEFAULT: "#C4855A",
+          dark: "#8B5430",
         },
         // Impact severity
         impact: {
-          high: "#C0392B",
+          high: "#B85C5C",
           medium: "#D4893A",
-          low: "#5A9E6F",
+          low: "#7B9E87",
         },
-        // Document view (light surface)
+        // Blue / info
+        blue: {
+          reg: "#6B8CAE",
+        },
+        // Purple / digests
+        purple: {
+          reg: "#9B7FC7",
+        },
+        // Document view (same as main surface)
         doc: {
-          bg: "#F7F6F3",
-          text: "#111111",
-          "text-secondary": "#5C5C5C",
-          accent: "#C0392B",
-          border: "#E2E0DB",
+          bg: "#F5F2EC",
+          text: "#1C1814",
+          "text-secondary": "#6B655C",
+          accent: "#C4855A",
+          border: "#E2DDD5",
         },
       },
       fontFamily: {
         display: ["var(--font-cormorant)", "Georgia", "serif"],
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-dm-mono)", "monospace"],
       },
       borderRadius: {
-        DEFAULT: "6px",
+        DEFAULT: "5px",
         sm: "4px",
-        md: "6px",
-        // No radius above 6px per spec
+        md: "5px",
       },
       maxWidth: {
         content: "860px",

@@ -2,23 +2,26 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { Calendar, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Trash2, ExternalLink } from "lucide-react";
 import { calendarApi } from "@/lib/api";
-import type { CalendarEvent, CalendarEventCreateRequest } from "@/lib/types";
+import type { CalendarEvent, CalendarEventCreateRequest, CalendarEventType } from "@/lib/types";
 import Link from "next/link";
 
-const EVENT_TYPE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  comment_deadline: { bg: "bg-[rgba(192,57,43,0.15)]", text: "text-[#C0392B]", label: "Comment Deadline" },
-  effective_date:   { bg: "bg-[rgba(90,158,111,0.15)]", text: "text-[#5A9E6F]", label: "Effective Date" },
-  compliance_deadline: { bg: "bg-[rgba(212,137,58,0.15)]", text: "text-[#D4893A]", label: "Compliance Deadline" },
-  key_date:         { bg: "bg-[rgba(115,115,115,0.15)]", text: "text-[#737373]", label: "Key Date" },
-  manual:           { bg: "bg-[rgba(192,57,43,0.10)]", text: "text-[#F0EEE9]", label: "Manual" },
+const EVENT_TYPE_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  comment_deadline: { bg: "#FAF0EC", border: "#E8C4BC", text: "#8B3A2F", label: "Comment Deadline" },
+  effective_date:   { bg: "#EFF4ED", border: "#C4D8BC", text: "#3A6B3A", label: "Effective Date" },
+  compliance_deadline: { bg: "#FDF4EA", border: "#E8D4BC", text: "#8B5E2F", label: "Compliance Deadline" },
+  filing_deadline:  { bg: "#FDF4EA", border: "#E8D4BC", text: "#8B5E2F", label: "Filing Deadline" },
+  review_date:      { bg: "#EEE9E0", border: "#D5D0C8", text: "#6B655C", label: "Review Date" },
+  key_date:         { bg: "#EEE9E0", border: "#D5D0C8", text: "#6B655C", label: "Key Date" },
+  custom:           { bg: "#EDF0F5", border: "#C4D0DC", text: "#4A6A8B", label: "Custom" },
+  manual:           { bg: "#EDF0F5", border: "#C4D0DC", text: "#4A6A8B", label: "Manual" },
 };
 
 function groupByMonth(events: CalendarEvent[]): Map<string, CalendarEvent[]> {
   const map = new Map<string, CalendarEvent[]>();
   for (const ev of events) {
-    const key = ev.date.slice(0, 7); // YYYY-MM
+    const key = ev.date.slice(0, 7);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(ev);
   }
@@ -30,11 +33,6 @@ function formatMonthHeading(yyyyMM: string): string {
   return new Date(year, month - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-function formatEventDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-}
-
 interface AddEventFormProps {
   onSave: (data: CalendarEventCreateRequest) => Promise<void>;
   onCancel: () => void;
@@ -44,7 +42,7 @@ function AddEventForm({ onSave, onCancel }: AddEventFormProps) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const [eventType, setEventType] = useState<"manual" | "key_date">("manual");
+  const [eventType, setEventType] = useState<CalendarEventType>("custom");
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,8 +57,12 @@ function AddEventForm({ onSave, onCancel }: AddEventFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#161616] border border-[#262626] rounded p-4 mb-6">
-      <p className="text-[10px] font-mono uppercase tracking-widest text-[#737373] mb-3">New Event</p>
+    <form
+      onSubmit={handleSubmit}
+      className="rounded p-4 mb-6"
+      style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}
+    >
+      <p className="font-mono uppercase tracking-widest mb-3" style={{ fontSize: 10, color: "#9E9890" }}>New Event</p>
       <div className="space-y-3">
         <input
           autoFocus
@@ -68,7 +70,7 @@ function AddEventForm({ onSave, onCancel }: AddEventFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Event title"
-          className="w-full bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm text-[#F0EEE9] placeholder-[#404040] focus:outline-none focus:border-[#444] font-sans"
+          className="input-base w-full"
           required
         />
         <div className="flex gap-3">
@@ -76,17 +78,18 @@ function AddEventForm({ onSave, onCancel }: AddEventFormProps) {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="flex-1 bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm text-[#F0EEE9] focus:outline-none focus:border-[#444] font-mono"
+            className="flex-1 input-base font-mono"
             required
           />
           <select
             value={eventType}
-            onChange={(e) => setEventType(e.target.value as "manual" | "key_date")}
-            className="bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm text-[#737373] focus:outline-none focus:border-[#444] font-mono"
+            onChange={(e) => setEventType(e.target.value as CalendarEventType)}
+            className="input-base font-mono"
           >
-            <option value="manual">Manual</option>
-            <option value="key_date">Key Date</option>
-            <option value="compliance_deadline">Compliance Deadline</option>
+            <option value="custom">Custom</option>
+            <option value="comment_deadline">Comment Deadline</option>
+            <option value="effective_date">Effective Date</option>
+            <option value="filing_deadline">Filing Deadline</option>
           </select>
         </div>
         <textarea
@@ -94,21 +97,24 @@ function AddEventForm({ onSave, onCancel }: AddEventFormProps) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Notes (optional)"
           rows={2}
-          className="w-full bg-[#111111] border border-[#262626] rounded px-3 py-2 text-sm text-[#737373] placeholder-[#404040] focus:outline-none focus:border-[#444] font-sans resize-none"
+          className="input-base w-full"
+          style={{ resize: "none" }}
         />
       </div>
       <div className="flex items-center gap-2 mt-3">
         <button
           type="submit"
           disabled={saving || !title.trim() || !date}
-          className="px-4 py-1.5 bg-[#C0392B] text-[#F0EEE9] text-[11px] font-mono uppercase tracking-wider rounded hover:bg-[#A93226] disabled:opacity-50 transition-colors"
+          className="px-4 py-1.5 text-white font-mono uppercase tracking-wider rounded disabled:opacity-50 transition-colors"
+          style={{ fontSize: 11, background: "#C4855A" }}
         >
           {saving ? "Saving…" : "Add event"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-1.5 text-[#737373] text-[11px] font-mono uppercase tracking-wider hover:text-[#F0EEE9] transition-colors"
+          className="px-4 py-1.5 font-mono uppercase tracking-wider transition-colors"
+          style={{ fontSize: 11, color: "#9E9890" }}
         >
           Cancel
         </button>
@@ -163,28 +169,36 @@ export default function CalendarPage() {
 
   const grouped = groupByMonth(events);
   const months = Array.from(grouped.keys()).sort();
-
-  const upcoming = events.filter((e) => e.date >= new Date().toISOString().slice(0, 10)).length;
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = events.filter((e) => e.date >= today).length;
   const past = events.length - upcoming;
 
+  const filterTabs = [
+    { key: "all", label: "All" },
+    { key: "comment_deadline", label: "Comment" },
+    { key: "effective_date", label: "Effective" },
+    { key: "filing_deadline", label: "Filing" },
+    { key: "custom", label: "Custom" },
+  ];
+
   return (
-    <div className="max-w-[860px] mx-auto px-12 py-10">
+    <div className="max-w-[860px] mx-auto px-8 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-4 h-4 text-[#737373]" />
-            <h1 className="font-display text-2xl font-semibold text-[#F0EEE9]">
-              Compliance Calendar
-            </h1>
-          </div>
-          <p className="text-xs text-[#737373] font-sans">
+          <h1 className="font-display" style={{ fontSize: 26, color: "#1C1814" }}>
+            Compliance Calendar
+          </h1>
+          <p className="font-sans text-sm mt-1" style={{ color: "#6B655C", fontWeight: 300 }}>
             Key dates from your regulatory feed, plus manual reminders.
           </p>
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C0392B] text-[#F0EEE9] text-[11px] font-mono uppercase tracking-wider rounded hover:bg-[#A93226] transition-colors"
+          className="flex items-center gap-1.5 text-white rounded transition-colors"
+          style={{ fontSize: 11, padding: "6px 14px", background: "#C4855A", fontFamily: "var(--font-dm-mono)" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#B5764B")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#C4855A")}
         >
           <Plus className="w-3.5 h-3.5" />
           Add event
@@ -193,33 +207,33 @@ export default function CalendarPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-[#161616] border border-[#262626] rounded p-4">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-[#737373] mb-1">Upcoming</p>
-          <p className="font-mono text-2xl text-[#F0EEE9]">{upcoming}</p>
+        <div className="rounded p-4" style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}>
+          <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>Upcoming</p>
+          <p className="font-mono text-2xl" style={{ color: "#1C1814" }}>{upcoming}</p>
         </div>
-        <div className="bg-[#161616] border border-[#262626] rounded p-4">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-[#737373] mb-1">Past / Total</p>
-          <p className="font-mono text-2xl text-[#F0EEE9]">{past} <span className="text-[#404040] text-lg">/ {events.length}</span></p>
+        <div className="rounded p-4" style={{ background: "#EEE9E0", border: "1px solid #E2DDD5" }}>
+          <p className="font-mono uppercase tracking-widest mb-1" style={{ fontSize: 10, color: "#9E9890" }}>Past / Total</p>
+          <p className="font-mono text-2xl" style={{ color: "#1C1814" }}>
+            {past}{" "}
+            <span style={{ color: "#B5AFA5", fontSize: 18 }}>/ {events.length}</span>
+          </p>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 mb-6">
-        {[
-          { key: "all", label: "All" },
-          { key: "comment_deadline", label: "Comment Deadlines" },
-          { key: "effective_date", label: "Effective Dates" },
-          { key: "compliance_deadline", label: "Compliance" },
-          { key: "manual", label: "Manual" },
-        ].map(({ key, label }) => (
+      <div className="flex items-center gap-1.5 mb-6">
+        {filterTabs.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setFilterType(key)}
-            className={`px-3 py-1 rounded text-[11px] font-mono uppercase tracking-wider transition-colors ${
-              filterType === key
-                ? "bg-[#C0392B] text-[#F0EEE9]"
-                : "text-[#737373] hover:text-[#F0EEE9] border border-[#262626]"
-            }`}
+            className="rounded font-mono uppercase tracking-wider transition-colors"
+            style={{
+              fontSize: 10,
+              padding: "4px 10px",
+              ...(filterType === key
+                ? { background: "#1C1814", color: "#F5F2EC", border: "1px solid #1C1814" }
+                : { color: "#9E9890", border: "1px solid #E2DDD5" }),
+            }}
           >
             {label}
           </button>
@@ -227,19 +241,17 @@ export default function CalendarPage() {
       </div>
 
       {/* Add event form */}
-      {showAdd && (
-        <AddEventForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />
-      )}
+      {showAdd && <AddEventForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
 
       {/* Content */}
       {loading ? (
         <div className="space-y-6">
           {[1, 2].map((i) => (
             <div key={i}>
-              <div className="w-32 h-4 bg-[#1E1E1E] rounded mb-3 animate-pulse" />
+              <div className="w-32 h-4 skeleton rounded mb-3" />
               <div className="space-y-2">
                 {[1, 2, 3].map((j) => (
-                  <div key={j} className="h-14 bg-[#161616] rounded animate-pulse" />
+                  <div key={j} className="h-14 skeleton rounded" />
                 ))}
               </div>
             </div>
@@ -247,11 +259,10 @@ export default function CalendarPage() {
         </div>
       ) : events.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Calendar className="w-8 h-8 text-[#262626] mb-4" />
-          <p className="font-display text-xl text-[#F0EEE9] mb-2">
+          <p className="font-display text-xl mb-2" style={{ color: "#1C1814" }}>
             No upcoming regulatory dates.
           </p>
-          <p className="text-sm text-[#737373] font-sans max-w-sm mx-auto">
+          <p className="font-sans text-sm max-w-sm mx-auto" style={{ color: "#6B655C", fontWeight: 300 }}>
             Donna will automatically populate this calendar as new documents are processed.
           </p>
         </div>
@@ -259,38 +270,46 @@ export default function CalendarPage() {
         <div className="space-y-10">
           {months.map((month) => {
             const monthEvents = grouped.get(month)!;
-            const today = new Date().toISOString().slice(0, 10);
             return (
               <section key={month}>
-                <h2 className="font-mono text-[11px] uppercase tracking-widest text-[#737373] mb-3 pb-2 border-b border-[#1A1A1A]">
+                <h2
+                  className="font-mono uppercase tracking-widest mb-3 pb-2"
+                  style={{ fontSize: 11, color: "#9E9890", borderBottom: "1px solid #E2DDD5" }}
+                >
                   {formatMonthHeading(month)}
                 </h2>
                 <div className="space-y-2">
                   {monthEvents.map((ev) => {
                     const isPast = ev.date < today;
                     const isToday = ev.date === today;
-                    const typeStyle = EVENT_TYPE_COLORS[ev.event_type] ?? EVENT_TYPE_COLORS.key_date;
+                    const cfg = EVENT_TYPE_CONFIG[ev.event_type] ?? EVENT_TYPE_CONFIG.key_date;
 
                     return (
                       <div
                         key={ev.id}
-                        className={`flex items-start gap-4 p-3 rounded border transition-colors group ${
-                          isToday
-                            ? "border-[#C0392B]/40 bg-[rgba(192,57,43,0.05)]"
+                        className="flex items-start gap-4 p-3 rounded transition-colors group"
+                        style={{
+                          border: isToday
+                            ? "1px solid rgba(196,133,90,0.40)"
                             : isPast
-                            ? "border-[#1A1A1A] opacity-60"
-                            : "border-[#262626] hover:border-[#333]"
-                        }`}
+                            ? "1px solid #E2DDD5"
+                            : "1px solid #E2DDD5",
+                          background: isToday ? "rgba(196,133,90,0.04)" : "#F5F2EC",
+                          opacity: isPast && !isToday ? 0.6 : 1,
+                        }}
                       >
                         {/* Date column */}
                         <div className="shrink-0 w-16 text-center">
-                          <p className={`font-mono text-xs ${isToday ? "text-[#C0392B]" : "text-[#737373]"}`}>
+                          <p className="font-mono text-xs" style={{ color: isToday ? "#C4855A" : "#9E9890" }}>
                             {new Date(ev.date + "T12:00:00").toLocaleDateString("en-US", { month: "short" })}
                           </p>
-                          <p className={`font-mono text-xl font-semibold leading-tight ${isToday ? "text-[#C0392B]" : "text-[#F0EEE9]"}`}>
+                          <p
+                            className="font-mono text-xl font-semibold leading-tight"
+                            style={{ color: isToday ? "#C4855A" : "#1C1814" }}
+                          >
                             {ev.date.slice(8)}
                           </p>
-                          <p className={`font-mono text-[10px] ${isToday ? "text-[#C0392B]" : "text-[#404040]"}`}>
+                          <p className="font-mono" style={{ fontSize: 10, color: isToday ? "#C4855A" : "#B5AFA5" }}>
                             {isToday ? "TODAY" : new Date(ev.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                           </p>
                         </div>
@@ -298,18 +317,27 @@ export default function CalendarPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className={`text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ${typeStyle.bg} ${typeStyle.text}`}>
-                              {typeStyle.label}
+                            <span
+                              className="font-mono uppercase tracking-wider rounded"
+                              style={{
+                                fontSize: 9,
+                                padding: "2px 6px",
+                                background: cfg.bg,
+                                border: `1px solid ${cfg.border}`,
+                                color: cfg.text,
+                              }}
+                            >
+                              {cfg.label}
                             </span>
                             {ev.is_user_created && (
-                              <span className="text-[10px] font-mono text-[#404040]">Manual</span>
+                              <span className="font-mono" style={{ fontSize: 9, color: "#B5AFA5" }}>Custom</span>
                             )}
                           </div>
-                          <p className="text-sm font-sans text-[#F0EEE9] leading-snug truncate">
+                          <p className="font-sans text-sm leading-snug truncate" style={{ color: "#1C1814" }}>
                             {ev.title}
                           </p>
                           {ev.description && (
-                            <p className="text-xs font-sans text-[#737373] mt-0.5 line-clamp-2">
+                            <p className="font-sans text-xs mt-0.5 line-clamp-2" style={{ color: "#6B655C", fontWeight: 300 }}>
                               {ev.description}
                             </p>
                           )}
@@ -320,7 +348,8 @@ export default function CalendarPage() {
                           {ev.regulatory_change_id && ev.change?.processed_document_id && (
                             <Link
                               href={`/document/${ev.change.processed_document_id}`}
-                              className="p-1.5 rounded hover:bg-[#262626] text-[#737373] hover:text-[#F0EEE9] transition-colors"
+                              className="p-1.5 rounded transition-colors"
+                              style={{ color: "#9E9890" }}
                               title="View document"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -329,8 +358,11 @@ export default function CalendarPage() {
                           {ev.is_user_created && (
                             <button
                               onClick={() => handleDelete(ev.id)}
-                              className="p-1.5 rounded hover:bg-[#262626] text-[#737373] hover:text-[#C0392B] transition-colors"
+                              className="p-1.5 rounded transition-colors"
+                              style={{ color: "#9E9890" }}
                               title="Delete event"
+                              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#B85C5C")}
+                              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

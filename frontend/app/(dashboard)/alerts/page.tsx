@@ -35,22 +35,20 @@ export default function AlertsPage() {
       const token = await getToken();
       await alertsApi.feedback(id, feedback, token ?? undefined);
       setAlerts((prev) =>
-        prev.map((a) =>
-          a.id === id ? { ...a, feedback } as Alert : a
-        )
+        prev.map((a) => a.id === id ? { ...a, feedback } as Alert : a)
       );
     } catch {
-      // silent fail
+      // silent
     }
   };
 
   return (
     <div className="max-w-[860px] mx-auto px-8 py-8">
-      <div className="border-b border-border pb-5 mb-8">
-        <h1 className="font-display text-3xl font-semibold text-text-primary">
+      <div className="pb-5 mb-8" style={{ borderBottom: "1px solid #E2DDD5" }}>
+        <h1 className="font-display" style={{ fontSize: 26, color: "#1C1814" }}>
           Alerts
         </h1>
-        <p className="text-sm text-text-secondary font-sans mt-1">
+        <p className="font-sans text-sm mt-1" style={{ color: "#6B655C", fontWeight: 300 }}>
           Real-time alerts for high-impact regulatory changes
         </p>
       </div>
@@ -62,12 +60,15 @@ export default function AlertsPage() {
           <CardSkeleton />
         </div>
       ) : error ? (
-        <p className="text-text-secondary text-sm font-sans">{error}</p>
+        <p className="font-sans text-sm" style={{ color: "#6B655C" }}>{error}</p>
       ) : alerts.length === 0 ? (
-        <div className="border border-border rounded p-12 text-center">
-          <Bell className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="font-display text-xl text-text-primary mb-2">No alerts yet.</p>
-          <p className="text-sm text-text-secondary font-sans max-w-sm mx-auto">
+        <div
+          className="rounded p-12 text-center"
+          style={{ border: "1px solid #E2DDD5" }}
+        >
+          <Bell className="w-8 h-8 mx-auto mb-3" style={{ color: "#D5D0C8" }} />
+          <p className="font-display text-xl mb-2" style={{ color: "#1C1814" }}>No alerts yet.</p>
+          <p className="font-sans text-sm max-w-sm mx-auto" style={{ color: "#6B655C", fontWeight: 300 }}>
             Donna will notify you here when high-impact changes are published.
           </p>
         </div>
@@ -89,35 +90,39 @@ function AlertCard({
   alert: Alert;
   onFeedback: (id: string, f: "relevant" | "not_relevant") => void;
 }) {
-  const statusColor =
+  const statusStyle =
     alert.status === "sent"
-      ? "text-impact-low"
+      ? { color: "#7B9E87" }
       : alert.status === "failed"
-      ? "text-impact-high"
-      : "text-text-tertiary";
+      ? { color: "#B85C5C" }
+      : { color: "#9E9890" };
 
   return (
-    <div className="border border-border rounded p-5">
+    <div
+      className="rounded p-5"
+      style={{ background: "#F5F2EC", border: "1px solid #E2DDD5" }}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`text-[10px] font-mono uppercase tracking-wider ${statusColor}`}>
+            <span className="font-mono uppercase tracking-wider" style={{ fontSize: 10, ...statusStyle }}>
               {alert.status}
             </span>
-            <span className="text-[10px] text-text-tertiary font-mono">
+            <span className="font-mono" style={{ fontSize: 10, color: "#9E9890" }}>
               {formatDate(alert.created_at)}
             </span>
-            <span className="text-[10px] text-text-tertiary font-mono">
+            <span className="font-mono" style={{ fontSize: 10, color: "#9E9890" }}>
               via {alert.channel}
             </span>
           </div>
-          <p className="text-sm font-sans text-text-primary font-medium mb-1">
+          <p className="font-sans font-medium text-sm mb-1" style={{ color: "#1C1814" }}>
             {alert.subject}
           </p>
           {alert.change && (
             <Link
               href={`/document/${alert.change.processed_document_id}`}
-              className="text-xs text-crimson hover:underline font-mono"
+              className="font-mono text-xs hover:underline"
+              style={{ color: "#C4855A" }}
             >
               View document →
             </Link>
@@ -126,15 +131,21 @@ function AlertCard({
         <div className="flex gap-1 shrink-0">
           <button
             onClick={() => onFeedback(alert.id, "relevant")}
-            className="p-1.5 rounded hover:bg-white/5 text-text-tertiary hover:text-impact-low transition-colors"
+            className="p-1.5 rounded transition-colors"
+            style={{ color: "#9E9890" }}
             title="Relevant"
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#7B9E87")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
           >
             <Check className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onFeedback(alert.id, "not_relevant")}
-            className="p-1.5 rounded hover:bg-white/5 text-text-tertiary hover:text-impact-high transition-colors"
+            className="p-1.5 rounded transition-colors"
+            style={{ color: "#9E9890" }}
             title="Not relevant"
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#B85C5C")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#9E9890")}
           >
             <X className="w-3.5 h-3.5" />
           </button>

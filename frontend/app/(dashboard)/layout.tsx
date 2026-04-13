@@ -25,9 +25,9 @@ export default function DashboardLayout({
 
   return (
     <TaskStatsProvider>
-      <div className="flex h-screen overflow-hidden bg-surface">
+      <div className="flex h-screen overflow-hidden" style={{ background: "#F5F2EC" }}>
         <Sidebar />
-        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+        <main className="flex-1 overflow-y-auto pt-14 md:pt-0" style={{ background: "#F5F2EC" }}>
           {children}
         </main>
         <CommandSearch open={searchOpen} onClose={() => setSearchOpen(false)} />

@@ -26,7 +26,6 @@ export default function OnboardingPage() {
   const { getToken } = useAuth();
   const [step, setStep] = useState<Step>("welcome");
 
-  // Redirect if already onboarded
   useEffect(() => {
     const checkOnboarded = async () => {
       try {
@@ -34,7 +33,7 @@ export default function OnboardingPage() {
         if (!token) return;
         const profile = await usersApi.me(token);
         if (profile.onboarded_at) {
-          router.push("/");
+          router.push("/feed");
         }
       } catch {
         // 404 = no profile yet, stay on onboarding
@@ -42,6 +41,7 @@ export default function OnboardingPage() {
     };
     checkOnboarded();
   }, [getToken, router]);
+
   const [companyName, setCompanyName] = useState("");
   const [industries, setIndustries] = useState<string[]>([]);
   const [jurisdictions, setJurisdictions] = useState<string[]>(["federal"]);
@@ -50,14 +50,8 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const toggleItem = (
-    list: string[],
-    setList: (v: string[]) => void,
-    item: string
-  ) => {
-    setList(
-      list.includes(item) ? list.filter((i) => i !== item) : [...list, item]
-    );
+  const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
+    setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
   };
 
   const handleComplete = async () => {
@@ -75,7 +69,7 @@ export default function OnboardingPage() {
         token ?? undefined
       );
       setStep("done");
-      setTimeout(() => router.push("/"), 2000);
+      setTimeout(() => router.push("/feed"), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save preferences");
     } finally {
@@ -83,62 +77,57 @@ export default function OnboardingPage() {
     }
   };
 
+  const STEPS_ORDER: Step[] = ["welcome", "industries", "jurisdictions", "alerts"];
+  const stepIndex = STEPS_ORDER.indexOf(step as Step);
+
   return (
-    <div className="min-h-screen bg-shell flex items-center justify-center p-6">
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ background: "#0E0B08" }}
+    >
       <div className="w-full max-w-lg">
-        {/* Header */}
+        {/* Wordmark */}
         <div className="text-center mb-10">
-          <h1 className="font-display text-5xl font-semibold text-text-primary tracking-tight">
-            Donna
+          <h1 className="font-display" style={{ fontSize: 48, color: "#F0EDE6" }}>
+            Donn<em style={{ color: "#C4855A", fontStyle: "italic" }}>a</em>
           </h1>
-          <p className="text-xs text-text-tertiary font-mono uppercase tracking-widest mt-2">
+          <p className="font-mono uppercase tracking-widest mt-2" style={{ fontSize: 10, color: "#4A453F" }}>
             Always three steps ahead.
           </p>
         </div>
 
         {/* Progress */}
-        {step !== "done" && (() => {
-          const STEPS = ["welcome", "industries", "jurisdictions", "alerts"] as Step[];
-          const stepNumber = STEPS.indexOf(step) + 1;
-          return (
-            <>
-              <p className="text-[11px] font-mono text-[#737373] text-center mb-3">
-                Step {stepNumber} of 4
-              </p>
-              <div className="flex gap-1 mb-8">
-                {STEPS.map((s) => {
-                  const current = STEPS.indexOf(step);
-                  const idx = STEPS.indexOf(s);
-                  return (
-                    <div
-                      key={s}
-                      className={`h-0.5 flex-1 rounded transition-colors ${
-                        idx <= current ? "bg-crimson" : "bg-border"
-                      }`}
-                    />
-                  );
-                })}
-              </div>
-            </>
-          );
-        })()}
+        {step !== "done" && (
+          <>
+            <p className="font-mono text-center mb-3" style={{ fontSize: 11, color: "#4A453F" }}>
+              Step {stepIndex + 1} of 4
+            </p>
+            <div className="flex gap-1 mb-8">
+              {STEPS_ORDER.map((s, idx) => (
+                <div
+                  key={s}
+                  className="h-0.5 flex-1 rounded transition-colors"
+                  style={{ background: idx <= stepIndex ? "#C4855A" : "#2A2420" }}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
-        {/* Steps */}
+        {/* Welcome step */}
         {step === "welcome" && (
-          <div className="border border-border rounded p-8">
-            <h2 className="font-display text-2xl font-semibold text-text-primary mb-3">
+          <div className="rounded p-8" style={{ background: "#1C1814", border: "1px solid #2A2420" }}>
+            <h2 className="font-display text-2xl mb-3" style={{ color: "#D4CFC7" }}>
               Welcome to Donna
             </h2>
-            <p className="text-sm text-text-secondary font-sans mb-6 leading-relaxed">
-              Donna monitors the regulatory landscape so you don't have to. We'll
-              scan federal and state regulatory bodies, extract what matters for
-              your business, and deliver plain-language summaries directly to you.
+            <p className="font-sans text-sm mb-6 leading-relaxed" style={{ color: "#6B655C", fontWeight: 300 }}>
+              Donna monitors the regulatory landscape so you don&apos;t have to. We&apos;ll scan federal and state regulatory bodies, extract what matters for your business, and deliver plain-language summaries directly to you.
             </p>
-            <p className="text-sm text-text-secondary font-sans mb-6">
-              Let's set up your profile so Donna knows what to watch.
+            <p className="font-sans text-sm mb-6" style={{ color: "#6B655C", fontWeight: 300 }}>
+              Let&apos;s set up your profile so Donna knows what to watch.
             </p>
             <div className="mb-6">
-              <label className="block text-xs text-text-tertiary font-mono uppercase tracking-wider mb-1.5">
+              <label className="block font-mono uppercase tracking-wider mb-1.5" style={{ fontSize: 10, color: "#4A453F" }}>
                 Company name (optional)
               </label>
               <input
@@ -146,7 +135,7 @@ export default function OnboardingPage() {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="Acme Corp"
-                className="input-base w-full"
+                className="input-dark"
               />
             </div>
             <Button variant="primary" className="w-full" onClick={() => setStep("industries")}>
@@ -156,30 +145,26 @@ export default function OnboardingPage() {
         )}
 
         {step === "industries" && (
-          <div className="border border-border rounded p-8">
-            <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">
+          <div className="rounded p-8" style={{ background: "#1C1814", border: "1px solid #2A2420" }}>
+            <h2 className="font-display text-2xl mb-2" style={{ color: "#D4CFC7" }}>
               Your industry
             </h2>
-            <p className="text-sm text-text-secondary font-sans mb-6">
+            <p className="font-sans text-sm mb-6" style={{ color: "#6B655C", fontWeight: 300 }}>
               Select the industries relevant to your compliance responsibilities.
             </p>
             <div className="flex flex-wrap gap-2 mb-8">
               {INDUSTRIES.map((ind) => (
-                <button
+                <OnboardPill
                   key={ind}
+                  active={industries.includes(ind)}
                   onClick={() => toggleItem(industries, setIndustries, ind)}
-                  className={`px-3 py-1.5 rounded border text-xs font-mono uppercase tracking-wider transition-colors ${
-                    industries.includes(ind)
-                      ? "bg-crimson/10 border-crimson/40 text-crimson"
-                      : "border-border text-text-tertiary hover:border-white/20 hover:text-text-secondary"
-                  }`}
                 >
                   {ind.replace("_", " ")}
-                </button>
+                </OnboardPill>
               ))}
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={() => setStep("welcome")} className="flex-1">
+              <Button variant="ghost" onClick={() => setStep("welcome")} className="flex-1" style={{ color: "#4A453F" }}>
                 Back
               </Button>
               <Button
@@ -195,42 +180,35 @@ export default function OnboardingPage() {
         )}
 
         {step === "jurisdictions" && (
-          <div className="border border-border rounded p-8">
-            <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">
+          <div className="rounded p-8" style={{ background: "#1C1814", border: "1px solid #2A2420" }}>
+            <h2 className="font-display text-2xl mb-2" style={{ color: "#D4CFC7" }}>
               Your jurisdictions
             </h2>
-            <p className="text-sm text-text-secondary font-sans mb-6">
+            <p className="font-sans text-sm mb-6" style={{ color: "#6B655C", fontWeight: 300 }}>
               Select the jurisdictions where you have compliance obligations.
             </p>
             <div className="mb-4">
-              <button
+              <OnboardPill
+                active={jurisdictions.includes("federal")}
                 onClick={() => toggleItem(jurisdictions, setJurisdictions, "federal")}
-                className={`px-3 py-1.5 rounded border text-xs font-mono uppercase tracking-wider transition-colors ${
-                  jurisdictions.includes("federal")
-                    ? "bg-crimson/10 border-crimson/40 text-crimson"
-                    : "border-border text-text-tertiary hover:border-white/20"
-                }`}
               >
                 Federal
-              </button>
+              </OnboardPill>
             </div>
             <div className="flex flex-wrap gap-2 mb-8 max-h-48 overflow-y-auto">
               {STATES.map((state) => (
-                <button
+                <OnboardPill
                   key={state}
+                  active={jurisdictions.includes(state)}
                   onClick={() => toggleItem(jurisdictions, setJurisdictions, state)}
-                  className={`px-2.5 py-1 rounded border text-xs font-mono tracking-wider transition-colors ${
-                    jurisdictions.includes(state)
-                      ? "bg-crimson/10 border-crimson/40 text-crimson"
-                      : "border-border text-text-tertiary hover:border-white/20"
-                  }`}
+                  compact
                 >
                   {state}
-                </button>
+                </OnboardPill>
               ))}
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={() => setStep("industries")} className="flex-1">
+              <Button variant="ghost" onClick={() => setStep("industries")} className="flex-1" style={{ color: "#4A453F" }}>
                 Back
               </Button>
               <Button
@@ -246,16 +224,16 @@ export default function OnboardingPage() {
         )}
 
         {step === "alerts" && (
-          <div className="border border-border rounded p-8">
-            <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">
+          <div className="rounded p-8" style={{ background: "#1C1814", border: "1px solid #2A2420" }}>
+            <h2 className="font-display text-2xl mb-2" style={{ color: "#D4CFC7" }}>
               Alert preferences
             </h2>
-            <p className="text-sm text-text-secondary font-sans mb-6">
+            <p className="font-sans text-sm mb-6" style={{ color: "#6B655C", fontWeight: 300 }}>
               How should Donna reach you?
             </p>
 
             <div className="mb-6">
-              <p className="text-xs text-text-tertiary font-mono uppercase tracking-wider mb-3">
+              <p className="font-mono uppercase tracking-wider mb-3" style={{ fontSize: 10, color: "#4A453F" }}>
                 Alert threshold
               </p>
               <div className="space-y-2">
@@ -267,48 +245,42 @@ export default function OnboardingPage() {
                   <button
                     key={value}
                     onClick={() => setAlertThreshold(value)}
-                    className={`w-full text-left p-3 rounded border transition-colors ${
-                      alertThreshold === value
-                        ? "bg-crimson/10 border-crimson/40"
-                        : "border-border hover:border-white/20"
-                    }`}
+                    className="w-full text-left p-3 rounded transition-colors"
+                    style={{
+                      border: alertThreshold === value ? "1px solid rgba(196,133,90,0.40)" : "1px solid #2A2420",
+                      background: alertThreshold === value ? "rgba(196,133,90,0.08)" : "transparent",
+                    }}
                   >
-                    <p className={`text-xs font-mono uppercase tracking-wider ${
-                      alertThreshold === value ? "text-crimson" : "text-text-secondary"
-                    }`}>
+                    <p className="font-mono uppercase tracking-wider" style={{ fontSize: 10, color: alertThreshold === value ? "#C4855A" : "#6B655C" }}>
                       {label}
                     </p>
-                    <p className="text-xs text-text-tertiary font-sans mt-0.5">{desc}</p>
+                    <p className="font-sans text-xs mt-0.5" style={{ color: "#4A453F", fontWeight: 300 }}>{desc}</p>
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="mb-8">
-              <p className="text-xs text-text-tertiary font-mono uppercase tracking-wider mb-3">
+              <p className="font-mono uppercase tracking-wider mb-3" style={{ fontSize: 10, color: "#4A453F" }}>
                 Digest cadence
               </p>
               <div className="flex gap-2">
                 {["daily", "weekly"].map((c) => (
-                  <button
+                  <OnboardPill
                     key={c}
+                    active={digestCadence === c}
                     onClick={() => setDigestCadence(c)}
-                    className={`flex-1 py-2 rounded border text-xs font-mono uppercase tracking-wider transition-colors ${
-                      digestCadence === c
-                        ? "bg-crimson/10 border-crimson/40 text-crimson"
-                        : "border-border text-text-tertiary hover:border-white/20"
-                    }`}
                   >
                     {c}
-                  </button>
+                  </OnboardPill>
                 ))}
               </div>
             </div>
 
-            {error && <p className="text-impact-high text-xs font-sans mb-4">{error}</p>}
+            {error && <p className="font-sans text-xs mb-4" style={{ color: "#B85C5C" }}>{error}</p>}
 
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={() => setStep("jurisdictions")} className="flex-1">
+              <Button variant="ghost" onClick={() => setStep("jurisdictions")} className="flex-1" style={{ color: "#4A453F" }}>
                 Back
               </Button>
               <Button
@@ -324,19 +296,56 @@ export default function OnboardingPage() {
         )}
 
         {step === "done" && (
-          <div className="border border-border rounded p-8 text-center">
-            <div className="w-10 h-10 rounded-full bg-impact-low/20 flex items-center justify-center mx-auto mb-4">
-              <span className="text-impact-low text-lg">✓</span>
+          <div className="rounded p-8 text-center" style={{ background: "#1C1814", border: "1px solid #2A2420" }}>
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ background: "rgba(123,158,135,0.20)" }}
+            >
+              <span style={{ color: "#7B9E87", fontSize: 18 }}>✓</span>
             </div>
-            <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">
+            <h2 className="font-display text-2xl mb-2" style={{ color: "#D4CFC7" }}>
               Donna is setting up your feed
             </h2>
-            <p className="text-sm text-text-secondary font-sans">
+            <p className="font-sans text-sm" style={{ color: "#6B655C", fontWeight: 300 }}>
               Analyzing regulations across your industries and jurisdictions...
             </p>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function OnboardPill({
+  active,
+  onClick,
+  children,
+  compact = false,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded font-mono uppercase tracking-wider transition-colors"
+      style={{
+        fontSize: 10,
+        padding: compact ? "4px 8px" : "6px 12px",
+        ...(active
+          ? { background: "rgba(196,133,90,0.12)", border: "1px solid rgba(196,133,90,0.40)", color: "#C4855A" }
+          : { border: "1px solid #2A2420", color: "#4A453F" }),
+      }}
+      onMouseEnter={(e) => {
+        if (!active) (e.currentTarget as HTMLButtonElement).style.color = "#8A837A";
+      }}
+      onMouseLeave={(e) => {
+        if (!active) (e.currentTarget as HTMLButtonElement).style.color = "#4A453F";
+      }}
+    >
+      {children}
+    </button>
   );
 }
