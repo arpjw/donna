@@ -179,10 +179,39 @@ def run(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            count = loop.run_until_complete(ingester.run())
+            result = loop.run_until_complete(_run_with_health_check())
         finally:
             loop.close()
-        return {"inserted": count}
+        return result
     except Exception as exc:
         logger.error(f"Federal Register ingestion failed: {exc}")
         raise self.retry(exc=exc)
+
+
+async def _run_with_health_check() -> dict:
+    from sqlalchemy import select
+    from app.db.session import AsyncSessionLocal
+    from app.models.regulatory_source import RegulatorySource
+
+    # Snapshot last_checked_at before the run so we can compare afterwards
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(RegulatorySource).where(RegulatorySource.slug == ingester.source_slug)
+        )
+        source = result.scalar_one_or_none()
+        last_checked_before = source.last_checked_at if source else None
+
+    count = await ingester.run()
+
+    # Warn if no new documents were found and the source was already stale for 6+ hours
+    if count == 0 and last_checked_before is not None:
+        stale_threshold = datetime.now(timezone.utc) - timedelta(hours=6)
+        if last_checked_before < stale_threshold:
+            logger.warning(
+                "Federal Register: No new documents in 6+ hours "
+                "(last_checked_at=%s, threshold=%s)",
+                last_checked_before.isoformat(),
+                stale_threshold.isoformat(),
+            )
+
+    return {"inserted": count}

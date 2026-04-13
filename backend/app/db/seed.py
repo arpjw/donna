@@ -118,6 +118,24 @@ SOURCES = [
         "jurisdiction": "MA",
         "category": "banking",
     },
+    {
+        "name": "California Attorney General",
+        "slug": "california-ag",
+        "base_url": "https://oag.ca.gov",
+        "feed_url": "https://oag.ca.gov/news",
+        "scrape_cadence_minutes": 720,
+        "jurisdiction": "CA",
+        "category": "enforcement",
+    },
+    {
+        "name": "New York Attorney General",
+        "slug": "new-york-ag",
+        "base_url": "https://ag.ny.gov",
+        "feed_url": "https://ag.ny.gov/press-release",
+        "scrape_cadence_minutes": 720,
+        "jurisdiction": "NY",
+        "category": "enforcement",
+    },
 ]
 
 
